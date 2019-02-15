@@ -83,8 +83,8 @@ int main(int argc, const char** argv)
 
 			Mat frame1 = frame.clone();
 			
-			/*op_codes = shapeDetect(frame1);
-			for (vector<int>::iterator it = op_codes.begin(); it != op_codes.end(); ++it)
+			op_codes = shapeDetect(frame1);
+			/*for (vector<int>::iterator it = op_codes.begin(); it != op_codes.end(); ++it)
 			{ 
 				int code = *it;
 				switch (code)
@@ -95,7 +95,10 @@ int main(int argc, const char** argv)
 
 
 			}*/
-			detectAndDraw(frame1, signCascade, scale, STOP_SIGN_DETECTION);
+
+			//detectAndDraw(frame1, signCascade, scale, STOP_SIGN_DETECTION);
+
+
 			/*detectAndDraw(frame1, carCascade, scale, CARS_DETECTION);
 			detectAndDraw(frame1, pedestrianCascade, scale, PEDESTRIAN_DETECTION);*/
 			

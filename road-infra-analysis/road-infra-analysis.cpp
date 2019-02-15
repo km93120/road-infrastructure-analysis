@@ -14,6 +14,7 @@ vector <int> shapeDetect(Mat &img)
 {
 
 	clock_t begin = clock();
+	int lowCannyThreshold = 85;
 
 	bool triangleDetected = false;
 	bool rectangleDetected = false;
@@ -29,8 +30,10 @@ vector <int> shapeDetect(Mat &img)
 	//threshold(gray, thresholded, 100, 255, 0);
 
 	// Use Canny instead of threshold to catch squares with gradient shading
-	Mat bw;
-	Canny(gray, bw, 100, 200, 5); //0,50 originally
+	Mat bw = gray.clone();
+	Mat blurred;
+	//GaussianBlur(bw, blurred, Size(5, 5), 0.0, 0.0);
+	Canny(bw, bw, lowCannyThreshold,lowCannyThreshold*3); //0,50 originally
 
 	// Find contours
 	vector<std::vector<cv::Point> > contours;
@@ -65,10 +68,11 @@ vector <int> shapeDetect(Mat &img)
 			// Get the lowest and the highest cosine
 			double mincos = cos.front();
 			double maxcos = cos.back();
-
+			cout << "triangleFalse";
 			if (abs(mincos) <= 0.55 && abs(maxcos) >= 0.45)
 			{
 				triangleDetected = true;
+				cout << "triangleTrue";
 			}
 			   // Triangles
 			
@@ -122,6 +126,7 @@ vector <int> shapeDetect(Mat &img)
 			if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
 				std::abs(1 - (area / (CV_PI * std::pow(radius, 2)))) <= 0.2)
 			{
+				cout << "circle";
 				circleDetected = true;
 			}
 				
@@ -153,7 +158,7 @@ vector <int> shapeDetect(Mat &img)
 	clock_t end = clock();
 	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 	std::cout << elapsed_secs << std::endl;
-	imshow("s", thresholded);
+	imshow("s", bw);
 	return outVector;
 	
 
@@ -210,7 +215,6 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 			outString = "pedestrian";
 		break;
 		case STOP_SIGN_DETECTION:
-			t = (double)getTickCount();
 			cascade.detectMultiScale(
 				smallImg,
 				objects,
