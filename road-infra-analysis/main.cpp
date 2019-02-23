@@ -13,23 +13,31 @@ using namespace cv;
 
 int main(int argc, const char** argv)
 {
-
-
-	string cascadeName, cascadeName2, cascadeName3;
+	string carCascadeName, 
+		   pedestrianCascadeName, 
+		   fDirCascadeName,
+		   stopSignCascadeName;
 	VideoCapture capture;
 	Mat frame, image;
 	string inputName;
 	bool tryflip;
-	CascadeClassifier carCascade, pedestrianCascade, signCascade;
-	double scale;
+	CascadeClassifier 
+		carCascade, 
+		pedestrianCascade, 
+		fDirSignCascade,
+		stopSignCascade;
+
+	vector<CascadeClassifier> classifiers;
 
 	vector<int> op_codes;
+
+	double scale;
 
 	cv::CommandLineParser parser(argc, argv,
 		"{help h||}"
 		"{carsCascade |cars|}"
 		"{pedestriansCascade|haarcascade_pedestrians|}"
-		"{signsCascade|stopsigns|}"
+		"{stopsignsCascade|f_direction_augmented|}"
 		"{nested-cascade|upper_bodyy.xml|}"
 		"{scale|1|}{try-flip||}{@filename||}"
 	);
@@ -39,13 +47,10 @@ int main(int argc, const char** argv)
 		help();
 		return 0;
 	}*/
-	cascadeName = parser.get<string>("carsCascade") + ".xml";
-	cascadeName2 = parser.get<string>("pedestriansCascade") + ".xml";
-	cascadeName3 = parser.get <string>("signsCascade") + ".xml";
-
-	cout << cascadeName;
-	cout << cascadeName2;
-	cout << cascadeName3;
+	carCascadeName = "cars.xml";
+	pedestrianCascadeName = "haarcascade_pedestrians.xml";
+	fDirCascadeName = "f_direction_augmented.xml";
+	stopSignCascadeName = "stopsigns.xml";
 
 	scale = 1.2;// parser.get<double>("scale");
 	if (scale < 1)
@@ -58,18 +63,29 @@ int main(int argc, const char** argv)
 		return 0;
 	}
 
-	if (!carCascade.load(cascadeName) || !pedestrianCascade.load(cascadeName2)|| !signCascade.load(cascadeName3))
+	if (!carCascade.load(carCascadeName) || 
+		!pedestrianCascade.load(pedestrianCascadeName)|| 
+		!fDirSignCascade.load(fDirCascadeName)|| 
+		!stopSignCascade.load(stopSignCascadeName))
 	{
 		cerr << "ERROR: Could not load classifier cascade" << endl;
 		//help();
 		return -1;
 	}
-	if (inputName.empty() || (isdigit(inputName[0]) && inputName.size() == 1))
+
+	classifiers.push_back(carCascade);
+	classifiers.push_back(pedestrianCascade);
+	classifiers.push_back(fDirSignCascade);
+	classifiers.push_back(stopSignCascade);
+
+	/*if (inputName.empty() || (isdigit(inputName[0]) && inputName.size() == 1))
 	{
 		int camera = inputName.empty() ? 0 : inputName[0] - '0';
 		if (!capture.open(camera))
 			cout << "Capture from camera #" << camera << " didn't work" << endl;
-	}
+	}*/
+
+	capture.open(0);
 
 
 	if (capture.isOpened())
@@ -84,23 +100,25 @@ int main(int argc, const char** argv)
 			Mat frame1 = frame.clone();
 			
 			op_codes = shapeDetect(frame1);
-			/*for (vector<int>::iterator it = op_codes.begin(); it != op_codes.end(); ++it)
-			{ 
-				int code = *it;
-				switch (code)
+			if (!op_codes.empty())
+			{
+				for (vector<int>::iterator it = op_codes.begin(); it != op_codes.end(); ++it)
 				{
-					case 
+					int code = *it;
+					detectAndDraw(frame1, classifiers.at(code), scale, code);
+					//cout << classifiers.at(code).empty();
+
+
 				}
-				cout << code;
+			}
+			
+
+			
 
 
-			}*/
 
-			//detectAndDraw(frame1, signCascade, scale, STOP_SIGN_DETECTION);
-
-
-			/*detectAndDraw(frame1, carCascade, scale, CARS_DETECTION);
-			detectAndDraw(frame1, pedestrianCascade, scale, PEDESTRIAN_DETECTION);*/
+			//detectAndDraw(frame1, fDirSignCascade, scale, PROHIBITED_DIRECTION_SIGN_DETECTION);
+			//detectAndDraw(frame1, pedestrianCascade, scale, PEDESTRIAN_DETECTION);
 			
 			
 			//carDetectAndDraw(frame1, carCascade, scale);

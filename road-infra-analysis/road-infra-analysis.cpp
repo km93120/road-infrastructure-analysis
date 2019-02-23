@@ -12,10 +12,10 @@ static double angle(cv::Point pt1, cv::Point pt2, cv::Point pt0)
 
 vector <int> shapeDetect(Mat &img) 
 {
-
+	
 	clock_t begin = clock();
 	int lowCannyThreshold = 85;
-
+	
 	bool triangleDetected = false;
 	bool rectangleDetected = false;
 	bool circleDetected = false;
@@ -30,16 +30,18 @@ vector <int> shapeDetect(Mat &img)
 	//threshold(gray, thresholded, 100, 255, 0);
 
 	// Use Canny instead of threshold to catch squares with gradient shading
-	Mat bw = gray.clone();
-	Mat blurred;
+	Mat bw;
+
+	bilateralFilter(gray, bw, 5, 20, 20);
+
 	//GaussianBlur(bw, blurred, Size(5, 5), 0.0, 0.0);
 	Canny(bw, bw, lowCannyThreshold,lowCannyThreshold*3); //0,50 originally
 
 	// Find contours
 	vector<std::vector<cv::Point> > contours;
 	findContours(bw.clone(), contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-
-	vector<cv::Point> approx;
+	
+	vector<cv::Point> approx;	
 	cv::Mat dst = img.clone();
 
 	for (int i = 0; i < contours.size(); i++)
@@ -49,18 +51,18 @@ vector <int> shapeDetect(Mat &img)
 		cv::approxPolyDP(cv::Mat(contours[i]), approx, cv::arcLength(cv::Mat(contours[i]), true)*0.02, true);
 
 		// Skip small or non-convex objects 
-		if (std::fabs(cv::contourArea(contours[i])) < 100 || !cv::isContourConvex(approx))
+		if (std::fabs(cv::contourArea(contours[i])) < 5000 || !cv::isContourConvex(approx))
 			continue;
 
 		if (approx.size() == 3)
 		{
 			
-			int vtc = approx.size();
+			int verticesNumber = approx.size();
 
 			// Get the cosines of all corners
 			std::vector<double> cos;
-			for (int j = 2; j < vtc + 1; j++)
-				cos.push_back(angle(approx[j%vtc], approx[j - 2], approx[j - 1]));
+			for (int j = 2; j < verticesNumber + 1; j++)
+				cos.push_back(angle(approx[j%verticesNumber], approx[j - 2], approx[j - 1]));
 
 			// Sort ascending the cosine values
 			sort(cos.begin(), cos.end());
@@ -135,8 +137,8 @@ vector <int> shapeDetect(Mat &img)
 
 	if (triangleDetected)
 	{
-		outVector.push_back(PEDESTRIAN_CROSSING_SIGN_DETECTION);
-		outVector.push_back(RIGHT_PRECEDENCE_SIGN_DETECTION);
+		//outVector.push_back(PEDESTRIAN_CROSSING_SIGN_DETECTION);
+		//outVector.push_back(RIGHT_PRECEDENCE_SIGN_DETECTION);
 	}
 	
 	if (rectangleDetected)
@@ -152,7 +154,7 @@ vector <int> shapeDetect(Mat &img)
 
 	if (hexagonDetected)
 	{
-		outVector.push_back(STOP_SIGN_DETECTION);
+		//outVector.push_back(STOP_SIGN_DETECTION );
 	}
 
 	clock_t end = clock();
@@ -222,8 +224,18 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				10,
 				CASCADE_DO_CANNY_PRUNING,
 				Size(30, 30));
-
 			outString = "stop_sign";
+			break;
+		case PROHIBITED_DIRECTION_SIGN_DETECTION:
+			cascade.detectMultiScale(
+				smallImg,
+				objects,
+				1.05,
+				20,
+				CASCADE_DO_CANNY_PRUNING,
+				Size(30, 30));
+			outString = "sensInterdit";
+			break;
 
 
 	}
