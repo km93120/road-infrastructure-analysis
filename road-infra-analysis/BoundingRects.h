@@ -25,5 +25,6 @@ public:
 
 	BoundingRects();
 	~BoundingRects();
+	void clearAllContainers();
 };
 

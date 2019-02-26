@@ -11,6 +11,8 @@ using namespace cv;
 
 int main(int argc, const char** argv)
 {
+
+
 	string carCascadeName, 
 		   pedestrianCascadeName, 
 		   fDirCascadeName,
@@ -30,6 +32,7 @@ int main(int argc, const char** argv)
 	vector<CascadeClassifier> classifiers;
 
 	vector<int> op_codes;
+	BoundingRects boundingRects;
 
 	double scale;
 
@@ -99,13 +102,13 @@ int main(int argc, const char** argv)
 
 			Mat frame1 = frame.clone();
 			
-			op_codes = shapeDetect(frame1);
+			op_codes = shapeDetect(frame1,boundingRects);
 			if (!op_codes.empty())
 			{
 				for (vector<int>::iterator it = op_codes.begin(); it != op_codes.end(); ++it)
 				{
 					int code = *it;
-					detectAndDraw(frame1, classifiers.at(code), scale, code);
+					detectAndDraw(frame1, classifiers.at(code), scale, code,boundingRects);
 					//cout << classifiers.at(code).empty();
 
 
@@ -114,8 +117,10 @@ int main(int argc, const char** argv)
 			
 
 			
+			cout << " candidate size : " << boundingRects.circleBoundingRects.size() << endl;
+			cout << " accepted size : " << boundingRects.circularSignRects.size()<< endl;
 
-
+			boundingRects.clearAllContainers();
 
 			//detectAndDraw(frame1, fDirSignCascade, scale, PROHIBITED_DIRECTION_SIGN_DETECTION);
 			//detectAndDraw(frame1, pedestrianCascade, scale, PEDESTRIAN_DETECTION);

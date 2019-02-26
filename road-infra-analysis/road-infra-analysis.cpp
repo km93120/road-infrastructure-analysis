@@ -10,7 +10,7 @@ static double angle(cv::Point pt1, cv::Point pt2, cv::Point pt0)
 	return (dx1*dx2 + dy1 * dy2) / sqrt((dx1*dx1 + dy1 * dy1)*(dx2*dx2 + dy2 * dy2) + 1e-10);
 }
 
-vector <int> shapeDetect(Mat &img) 
+vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects) 
 {
 	
 	clock_t begin = clock();
@@ -129,6 +129,7 @@ vector <int> shapeDetect(Mat &img)
 				std::abs(1 - (area / (CV_PI * std::pow(radius, 2)))) <= 0.2)
 			{
 				cout << "circle";
+				boundingRects.circleBoundingRects.push_back(r);
 				circleDetected = true;
 			}
 				
@@ -167,7 +168,7 @@ vector <int> shapeDetect(Mat &img)
 
 }
 
-void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_code)
+void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_code,BoundingRects & boundingRects)
 {
 	double t = 0;
 	string outString;
@@ -202,6 +203,10 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				Size(30, 30));
 			
 			outString = "car";
+			for (int i = 0; i < objects.size() ; i++)
+			{
+				boundingRects.carRects.push_back(objects.at(i));
+			}
 
 
 		break;
@@ -213,6 +218,10 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				6, 
 				CASCADE_DO_CANNY_PRUNING,
 				Size(20, 20));
+			for (int i = 0; i < objects.size(); i++)
+			{
+				boundingRects.pedestrianRects.push_back(objects.at(i));
+			}
 
 			outString = "pedestrian";
 		break;
@@ -227,20 +236,31 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 			outString = "stop_sign";
 			break;
 		case PROHIBITED_DIRECTION_SIGN_DETECTION:
-			cascade.detectMultiScale(
-				smallImg,
-				objects,
-				1.05,
-				20,
-				CASCADE_DO_CANNY_PRUNING,
-				Size(30, 30));
-			outString = "sensInterdit";
+			Mat ROI;
+			for (int i = 0; i < boundingRects.circleBoundingRects.size(); i++)
+			{
+				ROI = img(boundingRects.circleBoundingRects.at(i));
+				
+				cascade.detectMultiScale(
+					ROI,
+					objects,
+					1.05,
+					1,
+					CASCADE_DO_CANNY_PRUNING,
+					Size(30, 30));
+
+				if (!objects.empty())
+				{
+					boundingRects.circularSignRects.push_back(boundingRects.circleBoundingRects.at(i));//candidate contour is accepted
+				}
+				outString = "sensInterdit";
+			}
 			break;
 
 
 	}
 
-			
+	return;
 
 	
 
