@@ -155,7 +155,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BoundingRects.cpp" />
+    <ClCompile Include="CarRect.cpp" />
+    <ClCompile Include="CircularSignRect.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PedestrianRect.cpp" />
     <ClCompile Include="road-infra-analysis.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -163,8 +167,11 @@
     <Xml Include="haarcascade_pedestrians.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BoundingRects.h" />
+    <ClInclude Include="CarRect.h" />
+    <ClInclude Include="CircularSignRect.h" />
     <ClInclude Include="constants.h" />
-    <ClInclude Include="main.h" />
+    <ClInclude Include="PedestrianRect.h" />
     <ClInclude Include="road-infra-analysis.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

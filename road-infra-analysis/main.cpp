@@ -2,8 +2,6 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
 
-#include "constants.h"
-
 #include <iostream>
 
 #include "road-infra-analysis.h"
@@ -17,10 +15,12 @@ int main(int argc, const char** argv)
 		   pedestrianCascadeName, 
 		   fDirCascadeName,
 		   stopSignCascadeName;
+
 	VideoCapture capture;
 	Mat frame, image;
 	string inputName;
 	bool tryflip;
+
 	CascadeClassifier 
 		carCascade, 
 		pedestrianCascade, 

@@ -6,6 +6,8 @@
 
 #include "constants.h"
 
+#include "BoundingRects.h"
+
 #include <iostream>
 
 using namespace std;
