@@ -119,6 +119,9 @@ int main(int argc, const char** argv)
 			
 			cout << " candidate size : " << boundingRects.circleBoundingRects.size() << endl;
 			cout << " accepted size : " << boundingRects.circularSignRects.size()<< endl;
+			//TODO AR computing
+
+			//AR computing goes here
 
 			boundingRects.clearAllContainers();
 

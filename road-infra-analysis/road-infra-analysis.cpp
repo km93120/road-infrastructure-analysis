@@ -14,7 +14,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 {
 	
 	clock_t begin = clock();
-	int lowCannyThreshold = 85;
+	int lowCannyThreshold = 100;
 	
 	bool triangleDetected = false;
 	bool rectangleDetected = false;
@@ -32,8 +32,8 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	// Use Canny instead of threshold to catch squares with gradient shading
 	Mat bw;
 
-	bilateralFilter(gray, bw, 5, 20, 20);
-
+	//bilateralFilter(gray, bw, 5,10,10);
+	bw = gray.clone();
 	//GaussianBlur(bw, blurred, Size(5, 5), 0.0, 0.0);
 	Canny(bw, bw, lowCannyThreshold,lowCannyThreshold*3); //0,50 originally
 
@@ -116,19 +116,43 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 				hexagonDetected = true;
 				cout << "hexa";
 			}
-				
+			else if (vtc == 8)
+			{
+				cout << "octo";
+			}
+
 		}
+		
 		else
 		{
+
+			/*vector<Vec3f> circles;
+
+			/// Apply the Hough Transform to find the circles
+			HoughCircles(gray, circles, HOUGH_GRADIENT, 1, gray.rows / 8, 200, 100, 0, 0);
+
+			/// Draw the circles detected
+			for (size_t i = 0; i < circles.size(); i++)
+			{
+				Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+				int radius = cvRound(circles[i][2]);
+				Rect r = Rect(center.x - radius, center.y - radius,2*radius,2*radius);
+				rectangle(bw, r, Scalar(255, 0, 0), -1, 8, 0);
+				boundingRects.circleBoundingRects.push_back(r);
+				cout << "circle";
+			}*/
+
 			// Detect and label circles
 			double area = cv::contourArea(contours[i]);
 			cv::Rect r = cv::boundingRect(contours[i]);
 			int radius = r.width / 2;
 
-			if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
-				std::abs(1 - (area / (CV_PI * std::pow(radius, 2)))) <= 0.2)
+			if (std::abs(1 - ((double)r.width / r.height)) <= 0.1 &&
+				std::abs(1 - (area / (CV_PI * std::pow(radius, 2)))) <= 0.1
+				)
 			{
-				cout << "circle";
+				cout << "circle" << endl;
+				cout << "APPROX SIZE"<< approx.size() << endl ;
 				boundingRects.circleBoundingRects.push_back(r);
 				circleDetected = true;
 			}
@@ -237,17 +261,31 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 			break;
 		case PROHIBITED_DIRECTION_SIGN_DETECTION:
 			Mat ROI;
+			
 			for (int i = 0; i < boundingRects.circleBoundingRects.size(); i++)
 			{
+				Rect r;
+				cv::Size deltaSize(boundingRects.circleBoundingRects.at(i).width * 0.2f, 
+								   boundingRects.circleBoundingRects.at(i).height * 0.2f); // 0.1f = 10/100
+
+				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
+				 
+
+				boundingRects.circleBoundingRects.at(i) += deltaSize;
+				boundingRects.circleBoundingRects.at(i) -= offset;
+				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
+																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
+				rectangle(img, boundingRects.circleBoundingRects.at(i), Scalar(255, 0, 0));
 				ROI = img(boundingRects.circleBoundingRects.at(i));
+				imshow("fuck that shit", img);
 				
 				cascade.detectMultiScale(
 					ROI,
 					objects,
 					1.05,
-					1,
+					5,
 					CASCADE_DO_CANNY_PRUNING,
-					Size(30, 30));
+					Size(5, 5));
 
 				if (!objects.empty())
 				{
@@ -272,7 +310,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 		Mat smallImgROI;
 
 		Point center;
-		Scalar color = colors[i % 8];	//tourner et changer la couleur de l'image augmenterait les chances de détection
+		Scalar color = colors[i % 8];	
 		int radius;
 
 		double aspect_ratio = (double)r.width / r.height;
