@@ -126,6 +126,7 @@ int main(int argc, const char** argv)
 			boundingRects.clearAllContainers();
 
 			//detectAndDraw(frame1, fDirSignCascade, scale, PROHIBITED_DIRECTION_SIGN_DETECTION);
+
 			//detectAndDraw(frame1, pedestrianCascade, scale, PEDESTRIAN_DETECTION);
 			
 			

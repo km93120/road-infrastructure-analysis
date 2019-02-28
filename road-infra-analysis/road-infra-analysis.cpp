@@ -30,12 +30,15 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	//threshold(gray, thresholded, 100, 255, 0);
 
 	// Use Canny instead of threshold to catch squares with gradient shading
-	Mat bw;
+	Mat bw,structuringElement;
 
 	//bilateralFilter(gray, bw, 5,10,10);
 	bw = gray.clone();
 	//GaussianBlur(bw, blurred, Size(5, 5), 0.0, 0.0);
 	Canny(bw, bw, lowCannyThreshold,lowCannyThreshold*3); //0,50 originally
+	
+	structuringElement = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
+	morphologyEx(bw, bw, MORPH_CLOSE, structuringElement);
 
 	// Find contours
 	vector<std::vector<cv::Point> > contours;
@@ -265,10 +268,10 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 			for (int i = 0; i < boundingRects.circleBoundingRects.size(); i++)
 			{
 				Rect r;
-				cv::Size deltaSize(boundingRects.circleBoundingRects.at(i).width * 0.2f, 
-								   boundingRects.circleBoundingRects.at(i).height * 0.2f); // 0.1f = 10/100
+				cv::Size deltaSize(boundingRects.circleBoundingRects.at(i).width * 0.2f,
+					boundingRects.circleBoundingRects.at(i).height *0.2f);
 
-				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
+				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2); 
 				 
 
 				boundingRects.circleBoundingRects.at(i) += deltaSize;
@@ -277,7 +280,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
 				rectangle(img, boundingRects.circleBoundingRects.at(i), Scalar(255, 0, 0));
 				ROI = img(boundingRects.circleBoundingRects.at(i));
-				imshow("fuck that shit", img);
+				imshow("ss", img);
 				
 				cascade.detectMultiScale(
 					ROI,
