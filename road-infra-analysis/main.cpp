@@ -102,7 +102,7 @@ int main(int argc, const char** argv)
 
 			Mat frame1 = frame.clone();
 			
-			op_codes = shapeDetect(frame1,boundingRects);
+			/*op_codes = shapeDetect(frame1,boundingRects);
 			if (!op_codes.empty())
 			{
 				for (vector<int>::iterator it = op_codes.begin(); it != op_codes.end(); ++it)
@@ -113,14 +113,16 @@ int main(int argc, const char** argv)
 
 
 				}
-			}
+			}*/
 			
-
-			
+			//carDetectAndDraw(frame1, carCascade, scale);
+			detectAndDraw(frame1, carCascade, scale,0 ,boundingRects );
+			detectAndDraw(frame1, pedestrianCascade, scale, 1, boundingRects);
+			//pedestrianDetectAndDraw(frame, pedestrianCascade, scale);
 			cout << " candidate size : " << boundingRects.circleBoundingRects.size() << endl;
 			cout << " accepted size : " << boundingRects.circularSignRects.size()<< endl;
 			//TODO AR computing
-
+			drawRects(boundingRects, frame1);
 			//AR computing goes here
 
 			boundingRects.clearAllContainers();
@@ -129,11 +131,7 @@ int main(int argc, const char** argv)
 
 			//detectAndDraw(frame1, pedestrianCascade, scale, PEDESTRIAN_DETECTION);
 			
-			
-			//carDetectAndDraw(frame1, carCascade, scale);
-			//pedestrianDetectAndDraw(frame1, pedestrianCascade, scale);
-			//signDetectAndDraw(frame1, signCascade, scale);
-			//detectAndDraw(frame1, carCascade, nestedCascade, scale, tryflip);
+			//
 			//detectAndDraw(frame1, pedestrianCascade, nestedCascade, scale, tryflip);
 
 

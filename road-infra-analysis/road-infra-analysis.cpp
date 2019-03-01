@@ -216,13 +216,13 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 	cvtColor(img, gray, COLOR_BGR2GRAY);
 	double fx = 1 / scale;
 	resize(gray, smallImg, Size(), fx, fx, INTER_LINEAR_EXACT);
-	equalizeHist(smallImg, smallImg);
+	equalizeHist(gray, gray);
 	switch (op_code)
 	{
 		case CARS_DETECTION:
 			t = (double)getTickCount();
 			cascade.detectMultiScale(
-				smallImg, 
+				gray, 
 				objects,
 				1.05, 
 				6,
@@ -239,7 +239,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 		break;
 		case PEDESTRIAN_DETECTION:
 			cascade.detectMultiScale(
-				smallImg, 
+				gray, 
 				objects,
 				1.1, 
 				6, 
@@ -335,6 +335,78 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 
 	}
 	imshow("result", img);			// on affiche le resultat
+
+}
+
+void drawRects(BoundingRects rects,Mat & frame)
+{
+	const static Scalar colors[] =
+	{
+		Scalar(255,0,0),
+		Scalar(255,128,0),
+		Scalar(255,255,0),
+		Scalar(0,255,0),
+		Scalar(0,128,255),
+		Scalar(0,255,255),
+		Scalar(0,0,255),
+		Scalar(255,0,255)
+	};
+
+	for (size_t i = 0; i < rects.carRects.size(); i++)
+	{
+		Rect r = rects.carRects[i].rect;
+
+		Point center;
+		Scalar color = colors[i % 8];
+		int radius;
+
+		double aspect_ratio = (double)r.width / r.height;
+		if (0.75 < aspect_ratio && aspect_ratio < 1.3)
+		{
+			center.x = cvRound((r.x + r.width*0.5));
+			center.y = cvRound((r.y + r.height*0.5));
+			radius = cvRound((r.width + r.height)*0.25);
+			circle(frame, center, radius, color, 3, 8, 0);
+		}
+		else
+			rectangle(frame, Point(cvRound(r.x), cvRound(r.y)),
+				Point(cvRound((r.x + r.width - 1)), cvRound((r.y + r.height - 1))),
+				color, 3, 8, 0);
+
+
+		putText(frame, "car", Point(r.x + r.width, r.y + r.height), FONT_HERSHEY_COMPLEX_SMALL, 1.0, Scalar(255, 255, 255));
+
+
+	}
+
+	for (size_t i = 0; i < rects.pedestrianRects.size(); i++)
+	{
+		Rect r = rects.pedestrianRects[i].rect;
+
+		Point center;
+		Scalar color = colors[i % 8];
+		int radius;
+
+		double aspect_ratio = (double)r.width / r.height;
+		if (0.75 < aspect_ratio && aspect_ratio < 1.3)
+		{
+			center.x = cvRound((r.x + r.width*0.5));
+			center.y = cvRound((r.y + r.height*0.5));
+			radius = cvRound((r.width + r.height)*0.25);
+			circle(frame, center, radius, color, 3, 8, 0);
+		}
+		else
+			rectangle(frame, Point(cvRound(r.x), cvRound(r.y)),
+				Point(cvRound((r.x + r.width - 1)), cvRound((r.y + r.height - 1))),
+				color, 3, 8, 0);
+
+
+		putText(frame, "pedestrian", Point(r.x + r.width, r.y + r.height), FONT_HERSHEY_COMPLEX_SMALL, 1.0, Scalar(255, 255, 255));
+
+
+	}
+	imshow("result", frame);			// on affiche le resultat
+
 
 }
 
