@@ -54,7 +54,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 		cv::approxPolyDP(cv::Mat(contours[i]), approx, cv::arcLength(cv::Mat(contours[i]), true)*0.02, true);
 
 		// Skip small or non-convex objects 
-		if (std::fabs(cv::contourArea(contours[i])) < 5000 || !cv::isContourConvex(approx))
+		if (std::fabs(cv::contourArea(contours[i])) < 2500 || !cv::isContourConvex(approx))
 			continue;
 
 		if (approx.size() == 3)
@@ -101,7 +101,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 			// Get the lowest and the highest cosine
 			double mincos = cos.front();
 			double maxcos = cos.back();
-
+			cout << vtc;
 			// Use the degrees obtained above and the number of vertices
 			// to determine the shape of the contour
 			if (vtc == 4 && mincos >= -0.1 && maxcos <= 0.3)
@@ -109,6 +109,10 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 				cout << "rectangle";
 				rectangleDetected = true;
 
+			}
+			else if (vtc == 8)
+			{
+				cout << "octo";
 			}
 			else if (vtc == 5 && mincos >= -0.34 && maxcos <= -0.27)
 			{
@@ -119,34 +123,18 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 				hexagonDetected = true;
 				cout << "hexa";
 			}
-			else if (vtc == 8)
-			{
-				cout << "octo";
-			}
+			
+			
 
 		}
 		
 		else
 		{
 
-			/*vector<Vec3f> circles;
-
-			/// Apply the Hough Transform to find the circles
-			HoughCircles(gray, circles, HOUGH_GRADIENT, 1, gray.rows / 8, 200, 100, 0, 0);
-
-			/// Draw the circles detected
-			for (size_t i = 0; i < circles.size(); i++)
-			{
-				Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-				int radius = cvRound(circles[i][2]);
-				Rect r = Rect(center.x - radius, center.y - radius,2*radius,2*radius);
-				rectangle(bw, r, Scalar(255, 0, 0), -1, 8, 0);
-				boundingRects.circleBoundingRects.push_back(r);
-				cout << "circle";
-			}*/
+			
 
 			// Detect and label circles
-			double area = cv::contourArea(contours[i]);
+			/*double area = cv::contourArea(contours[i]);
 			cv::Rect r = cv::boundingRect(contours[i]);
 			int radius = r.width / 2;
 
@@ -158,14 +146,33 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 				cout << "APPROX SIZE"<< approx.size() << endl ;
 				boundingRects.circleBoundingRects.push_back(r);
 				circleDetected = true;
-			}
+			}*/
 				
 		}
+		cout << approx.size();
 	}
+
+	vector<Vec3f> circles;
+
+	/// Apply the Hough Transform to find the circles
+	HoughCircles(gray, circles, HOUGH_GRADIENT, 1, gray.rows / 16, 255, 50, 0, 0);
+
+	/// Draw the circles detected
+	for (size_t i = 0; i < circles.size(); i++)
+	{
+		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+		int radius = cvRound(circles[i][2]);
+		Rect r = Rect(center.x - radius, center.y - radius, 2 * radius, 2 * radius);
+		rectangle(bw, r, Scalar(255, 0, 0), -1, 8, 0);
+		boundingRects.circleBoundingRects.push_back(r);
+		circleDetected = true;
+		cout << "circle";
+	}
+
 
 	if (triangleDetected)
 	{
-		//outVector.push_back(PEDESTRIAN_CROSSING_SIGN_DETECTION);
+		//outVector.push_back (PEDESTRIAN_CROSSING_SIGN_DETECTION);
 		//outVector.push_back(RIGHT_PRECEDENCE_SIGN_DETECTION);
 	}
 	
@@ -280,7 +287,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
 				rectangle(img, boundingRects.circleBoundingRects.at(i), Scalar(255, 0, 0));
 				ROI = img(boundingRects.circleBoundingRects.at(i));
-				imshow("ss", img);
+				//imshow("ss", img);
 				
 				cascade.detectMultiScale(
 					ROI,
@@ -292,7 +299,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 
 				if (!objects.empty())
 				{
-					boundingRects.circularSignRects.push_back(boundingRects.circleBoundingRects.at(i));//candidate contour is accepted
+					boundingRects.circularSignRects.push_back(CircularSignRect(boundingRects.circleBoundingRects.at(i)));//candidate contour is accepted
 				}
 				outString = "sensInterdit";
 			}
@@ -402,6 +409,33 @@ void drawRects(BoundingRects rects,Mat & frame)
 
 
 		putText(frame, "pedestrian", Point(r.x + r.width, r.y + r.height), FONT_HERSHEY_COMPLEX_SMALL, 1.0, Scalar(255, 255, 255));
+
+
+	}
+
+	for (size_t i = 0; i < rects.circularSignRects.size(); i++)
+	{
+		Rect r = rects.circularSignRects[i].rect;
+
+		Point center;
+		Scalar color = colors[i % 8];
+		int radius;
+
+		double aspect_ratio = (double)r.width / r.height;
+		if (0.75 < aspect_ratio && aspect_ratio < 1.3)
+		{
+			center.x = cvRound((r.x + r.width*0.5));
+			center.y = cvRound((r.y + r.height*0.5));
+			radius = cvRound((r.width + r.height)*0.25);
+			circle(frame, center, radius, color, 3, 8, 0);
+		}
+		else
+			rectangle(frame, Point(cvRound(r.x), cvRound(r.y)),
+				Point(cvRound((r.x + r.width - 1)), cvRound((r.y + r.height - 1))),
+				color, 3, 8, 0);
+
+
+		putText(frame, "sens interdit", Point(r.x + r.width, r.y + r.height), FONT_HERSHEY_COMPLEX_SMALL, 1.0, Scalar(255, 255, 255));
 
 
 	}

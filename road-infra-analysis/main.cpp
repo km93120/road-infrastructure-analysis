@@ -102,7 +102,7 @@ int main(int argc, const char** argv)
 
 			Mat frame1 = frame.clone();
 			
-			/*op_codes = shapeDetect(frame1,boundingRects);
+			op_codes = shapeDetect(frame1,boundingRects);
 			if (!op_codes.empty())
 			{
 				for (vector<int>::iterator it = op_codes.begin(); it != op_codes.end(); ++it)
@@ -113,7 +113,7 @@ int main(int argc, const char** argv)
 
 
 				}
-			}*/
+			}
 			
 			//carDetectAndDraw(frame1, carCascade, scale);
 			detectAndDraw(frame1, carCascade, scale,0 ,boundingRects );
@@ -125,14 +125,11 @@ int main(int argc, const char** argv)
 			drawRects(boundingRects, frame1);
 			//AR computing goes here
 
+
+
 			boundingRects.clearAllContainers();
 
-			//detectAndDraw(frame1, fDirSignCascade, scale, PROHIBITED_DIRECTION_SIGN_DETECTION);
 
-			//detectAndDraw(frame1, pedestrianCascade, scale, PEDESTRIAN_DETECTION);
-			
-			//
-			//detectAndDraw(frame1, pedestrianCascade, nestedCascade, scale, tryflip);
 
 
 			char c = (char)waitKey(10);
