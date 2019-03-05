@@ -13,7 +13,7 @@
 using namespace std;
 using namespace cv;
 
-void detectAndDraw(Mat& img, CascadeClassifier& cascade, double scale, int op_code,BoundingRects &);
+void detectAndDraw(Mat& img, CascadeClassifier& cascade, double scale, int op_code,BoundingRects &); 
 
 void drawRects(BoundingRects rects,Mat & frame);
 void carDetectAndDraw(Mat& img, CascadeClassifier& cascade, double scale);

@@ -44,7 +44,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	vector<std::vector<cv::Point> > contours;
 	findContours(bw.clone(), contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 	
-	vector<cv::Point> approx;	
+	vector<cv::Point> approx;
 	cv::Mat dst = img.clone();
 
 	for (int i = 0; i < contours.size(); i++)
@@ -77,6 +77,9 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 			if (abs(mincos) <= 0.55 && abs(maxcos) >= 0.45)
 			{
 				triangleDetected = true;
+				Rect bdr = boundingRect(approx);
+				rectangle(bw, bdr, Scalar(255, 0, 0));
+				boundingRects.triangleBoundingRects.push_back(boundingRect(approx));
 				cout << "triangleTrue";
 			}
 			   // Triangles
@@ -172,7 +175,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 
 	if (triangleDetected)
 	{
-		//outVector.push_back (PEDESTRIAN_CROSSING_SIGN_DETECTION);
+		outVector.push_back(PEDESTRIAN_CROSSING_SIGN_DETECTION);
 		//outVector.push_back(RIGHT_PRECEDENCE_SIGN_DETECTION);
 	}
 	
@@ -218,7 +221,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 		Scalar(0,0,255),
 		Scalar(255,0,255)
 	};
-	Mat gray, smallImg;
+	Mat gray, smallImg,ROI;
 
 	cvtColor(img, gray, COLOR_BGR2GRAY);
 	double fx = 1 / scale;
@@ -269,9 +272,42 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				Size(30, 30));
 			outString = "stop_sign";
 			break;
+		case PEDESTRIAN_CROSSING_SIGN_DETECTION:
+
+			for (int i = 0; i < boundingRects.triangleBoundingRects.size(); i++)
+			{
+				Rect r;
+				cv::Size deltaSize(boundingRects.triangleBoundingRects.at(i).width * 0.2f,
+					boundingRects.triangleBoundingRects.at(i).height *0.2f);
+
+				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
+
+
+				//boundingRects.triangleBoundingRects.at(i) += deltaSize;
+				//boundingRects.triangleBoundingRects.at(i) -= offset;
+				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
+																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
+				rectangle(img, boundingRects.triangleBoundingRects.at(i), Scalar(255, 0, 0));
+				ROI = img(boundingRects.triangleBoundingRects.at(i));
+				//imshow("ss", img);
+
+				cascade.detectMultiScale(
+					ROI,
+					objects,
+					1.05,
+					5,
+					CASCADE_DO_CANNY_PRUNING,
+					Size(5, 5));
+
+				if (!objects.empty())
+				{
+					boundingRects.triangleSignRects.push_back(TriangleSignRect(boundingRects.triangleBoundingRects.at(i)));//candidate contour is accepted
+				}
+				
+			}
+			outString = "pedestrian crossing";
+			break;
 		case PROHIBITED_DIRECTION_SIGN_DETECTION:
-			Mat ROI;
-			
 			for (int i = 0; i < boundingRects.circleBoundingRects.size(); i++)
 			{
 				Rect r;
@@ -280,7 +316,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 
 				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2); 
 				 
-
+				
 				boundingRects.circleBoundingRects.at(i) += deltaSize;
 				boundingRects.circleBoundingRects.at(i) -= offset;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
@@ -304,6 +340,8 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				outString = "sensInterdit";
 			}
 			break;
+
+		
 
 
 	}

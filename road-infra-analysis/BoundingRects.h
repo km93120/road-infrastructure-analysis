@@ -5,6 +5,7 @@
 #include "CarRect.h"
 #include "CircularSignRect.h"
 #include "PedestrianRect.h"
+#include "TriangleSignRect.h"
 
 using namespace std;
 using namespace cv;
@@ -17,8 +18,10 @@ public:
 	vector <CircularSignRect > circularSignRects;
 	vector <PedestrianRect> pedestrianRects;
 	vector <CarRect > carRects;
+	vector <TriangleSignRect> triangleSignRects;
 
 	// containers for potential signs(shapes)
+
 	vector<Rect> circleBoundingRects;
 	vector<Rect> rects;
 	vector<Rect> triangleBoundingRects;

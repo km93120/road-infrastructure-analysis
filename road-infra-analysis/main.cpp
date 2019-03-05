@@ -16,7 +16,8 @@ int main(int argc, const char** argv)
 	string carCascadeName, 
 		   pedestrianCascadeName, 
 		   fDirCascadeName,
-		   stopSignCascadeName;
+		   stopSignCascadeName,
+		   crossSignCascadeName;
 
 	VideoCapture capture;
 	Mat frame, image;
@@ -27,7 +28,8 @@ int main(int argc, const char** argv)
 		carCascade, 
 		pedestrianCascade, 
 		fDirSignCascade,
-		stopSignCascade;
+		stopSignCascade,
+		crossSignCascade;
 
 	vector<CascadeClassifier> classifiers;
 
@@ -54,6 +56,7 @@ int main(int argc, const char** argv)
 	pedestrianCascadeName = "haarcascade_pedestrians.xml";
 	fDirCascadeName = "f_direction_augmented.xml";
 	stopSignCascadeName = "stopsigns.xml";
+	crossSignCascadeName = "crossSignClassifier.xml";
 
 	scale = 1.2;// parser.get<double>("scale");
 	if (scale < 1)
@@ -69,7 +72,8 @@ int main(int argc, const char** argv)
 	if (!carCascade.load(carCascadeName) || 
 		!pedestrianCascade.load(pedestrianCascadeName)|| 
 		!fDirSignCascade.load(fDirCascadeName)|| 
-		!stopSignCascade.load(stopSignCascadeName))
+		!stopSignCascade.load(stopSignCascadeName) ||
+		!crossSignCascade.load(crossSignCascadeName))
 	{
 		cerr << "ERROR: Could not load classifier cascade" << endl;
 		//help();
@@ -80,6 +84,7 @@ int main(int argc, const char** argv)
 	classifiers.push_back(pedestrianCascade);
 	classifiers.push_back(fDirSignCascade);
 	classifiers.push_back(stopSignCascade);
+	classifiers.push_back(crossSignCascade);
 
 	/*if (inputName.empty() || (isdigit(inputName[0]) && inputName.size() == 1))
 	{
@@ -115,14 +120,14 @@ int main(int argc, const char** argv)
 				}
 			}
 			
-			//carDetectAndDraw(frame1, carCascade, scale);
-			detectAndDraw(frame1, carCascade, scale,0 ,boundingRects );
-			detectAndDraw(frame1, pedestrianCascade, scale, 1, boundingRects);
-			//pedestrianDetectAndDraw(frame, pedestrianCascade, scale);
-			cout << " candidate size : " << boundingRects.circleBoundingRects.size() << endl;
-			cout << " accepted size : " << boundingRects.circularSignRects.size()<< endl;
+			
+			//detectAndDraw(frame1, carCascade, scale,0 ,boundingRects );
+			//detectAndDraw(frame1, pedestrianCascade, scale, 1, boundingRects);
+			//pedestrianDetectAndDraw(frame,crossSignCascade, scale);
+			cout << " candidate size : " << boundingRects.triangleBoundingRects.size() << endl;
+			cout << " accepted size : " << boundingRects.triangleSignRects.size()<< endl;
 			//TODO AR computing
-			drawRects(boundingRects, frame1);
+			//drawRects(boundingRects, frame1);
 			//AR computing goes here
 
 
