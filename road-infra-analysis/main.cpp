@@ -125,7 +125,7 @@ int main(int argc, const char** argv)
 			//detectAndDraw(frame1, pedestrianCascade, scale, 1, boundingRects);
 			//pedestrianDetectAndDraw(frame,crossSignCascade, scale);
 			cout << " candidate size : " << boundingRects.triangleBoundingRects.size() << endl;
-			cout << " accepted size : " << boundingRects.triangleSignRects.size()<< endl;
+			cout << " accepted size : " << boundingRects.crossSignRects.size()<< endl;
 			//TODO AR computing
 			//drawRects(boundingRects, frame1);
 			//AR computing goes here

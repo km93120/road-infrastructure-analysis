@@ -4,14 +4,14 @@
 using namespace std;
 using namespace cv;
 
-class TriangleSignRect
+class CrossSignRect
 {
 public:
 public:
 	Vec2d RWcoordinates;
 	Rect  rect;
 
-	TriangleSignRect(Rect);
-	~TriangleSignRect();
+	CrossSignRect(Rect);
+	~CrossSignRect();
 };
 

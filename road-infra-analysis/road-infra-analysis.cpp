@@ -301,7 +301,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 
 				if (!objects.empty())
 				{
-					boundingRects.triangleSignRects.push_back(TriangleSignRect(boundingRects.triangleBoundingRects.at(i)));//candidate contour is accepted
+					boundingRects.crossSignRects.push_back(CrossSignRect(boundingRects.triangleBoundingRects.at(i)));//candidate contour is accepted
 				}
 				
 			}
