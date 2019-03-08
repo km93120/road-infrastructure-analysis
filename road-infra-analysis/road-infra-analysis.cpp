@@ -176,7 +176,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	if (triangleDetected)
 	{
 		outVector.push_back(PEDESTRIAN_CROSSING_SIGN_DETECTION);
-		//outVector.push_back(RIGHT_PRECEDENCE_SIGN_DETECTION);
+		outVector.push_back(RIGHT_PRECEDENCE_SIGN_DETECTION);
 	}
 	
 	if (rectangleDetected)
@@ -339,6 +339,41 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				}
 				outString = "sensInterdit";
 			}
+			break;
+		case RIGHT_PRECEDENCE_SIGN_DETECTION:
+
+			for (int i = 0; i < boundingRects.triangleBoundingRects.size(); i++)
+			{
+				Rect r;
+				cv::Size deltaSize(boundingRects.triangleBoundingRects.at(i).width * 0.2f,
+					boundingRects.triangleBoundingRects.at(i).height *0.2f);
+
+				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
+
+
+				boundingRects.triangleBoundingRects.at(i) += deltaSize;
+				boundingRects.triangleBoundingRects.at(i) -= offset;
+				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
+																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
+				rectangle(img, boundingRects.triangleBoundingRects.at(i), Scalar(255, 0, 0));
+				ROI = img(boundingRects.triangleBoundingRects.at(i));
+				//imshow("ss", img);
+
+				cascade.detectMultiScale(
+					ROI,
+					objects,
+					1.05,
+					2,
+					CASCADE_DO_CANNY_PRUNING,
+					Size(5, 5));
+
+				if (!objects.empty())
+				{
+					boundingRects.rpSignRects.push_back(RPSignRect(boundingRects.triangleBoundingRects.at(i)));//candidate contour is accepted
+				}
+
+			}
+			outString = "right precedence warning";
 			break;
 
 		

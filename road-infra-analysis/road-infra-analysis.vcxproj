@@ -162,6 +162,8 @@
     <ClCompile Include="PedestrianRect.cpp" />
     <ClCompile Include="road-infra-analysis.cpp" />
     <ClCompile Include="CrossSignRect.cpp" />
+    <ClCompile Include="RPSignRect.cpp" />
+    <ClCompile Include="StopSignRect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="cars.xml" />
@@ -175,6 +177,8 @@
     <ClInclude Include="PedestrianRect.h" />
     <ClInclude Include="road-infra-analysis.h" />
     <ClInclude Include="CrossSignRect.h" />
+    <ClInclude Include="RPSignRect.h" />
+    <ClInclude Include="StopSignRect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

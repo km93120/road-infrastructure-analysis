@@ -17,19 +17,22 @@ int main(int argc, const char** argv)
 		   pedestrianCascadeName, 
 		   fDirCascadeName,
 		   stopSignCascadeName,
-		   crossSignCascadeName;
+		   crossSignCascadeName,
+		   RPSignCascadeName;
 
 	VideoCapture capture;
 	Mat frame, image;
 	string inputName;
 	bool tryflip;
 
-	CascadeClassifier 
-		carCascade, 
-		pedestrianCascade, 
+	CascadeClassifier
+		carCascade,
+		pedestrianCascade,
 		fDirSignCascade,
 		stopSignCascade,
-		crossSignCascade;
+		crossSignCascade,
+		RPSignCascade;
+
 
 	vector<CascadeClassifier> classifiers;
 
@@ -57,6 +60,7 @@ int main(int argc, const char** argv)
 	fDirCascadeName = "f_direction_augmented.xml";
 	stopSignCascadeName = "stopsigns.xml";
 	crossSignCascadeName = "crossSignClassifier.xml";
+	RPSignCascadeName = "rightPrecedenceSignClassifier.xml";
 
 	scale = 1.2;// parser.get<double>("scale");
 	if (scale < 1)
@@ -73,7 +77,8 @@ int main(int argc, const char** argv)
 		!pedestrianCascade.load(pedestrianCascadeName)|| 
 		!fDirSignCascade.load(fDirCascadeName)|| 
 		!stopSignCascade.load(stopSignCascadeName) ||
-		!crossSignCascade.load(crossSignCascadeName))
+		!crossSignCascade.load(crossSignCascadeName)||
+		!RPSignCascade.load(RPSignCascadeName))
 	{
 		cerr << "ERROR: Could not load classifier cascade" << endl;
 		//help();
@@ -85,13 +90,8 @@ int main(int argc, const char** argv)
 	classifiers.push_back(fDirSignCascade);
 	classifiers.push_back(stopSignCascade);
 	classifiers.push_back(crossSignCascade);
-
-	/*if (inputName.empty() || (isdigit(inputName[0]) && inputName.size() == 1))
-	{
-		int camera = inputName.empty() ? 0 : inputName[0] - '0';
-		if (!capture.open(camera))
-			cout << "Capture from camera #" << camera << " didn't work" << endl;
-	}*/
+	classifiers.push_back(RPSignCascade);
+	
 
 	capture.open(0);
 
@@ -124,8 +124,9 @@ int main(int argc, const char** argv)
 			//detectAndDraw(frame1, carCascade, scale,0 ,boundingRects );
 			//detectAndDraw(frame1, pedestrianCascade, scale, 1, boundingRects);
 			//pedestrianDetectAndDraw(frame,crossSignCascade, scale);
-			cout << " candidate size : " << boundingRects.triangleBoundingRects.size() << endl;
-			cout << " accepted size : " << boundingRects.crossSignRects.size()<< endl;
+			cout << " pedestrian crossing signs : " << boundingRects.crossSignRects.size() << " / "  << boundingRects.triangleBoundingRects.size() << endl;
+			cout << " fDirection sign : " << boundingRects.circularSignRects.size() << " / " << boundingRects.circleBoundingRects.size() << endl;
+			cout << " RP sign : " << boundingRects.rpSignRects.size() << " / " << boundingRects.triangleBoundingRects.size() << endl;
 			//TODO AR computing
 			//drawRects(boundingRects, frame1);
 			//AR computing goes here

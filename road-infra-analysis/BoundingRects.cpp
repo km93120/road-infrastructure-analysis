@@ -17,8 +17,11 @@ void BoundingRects::clearAllContainers()
 	pedestrianRects.clear();
 	carRects.clear();
 	crossSignRects.clear();
-	  
+	rpSignRects.clear();
+	stopSignRects.clear();
+
 	circleBoundingRects.clear();
 	rects.clear();
 	triangleBoundingRects.clear();
+	octogonRects.clear();
 }

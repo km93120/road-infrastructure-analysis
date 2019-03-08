@@ -1,16 +1,17 @@
 #pragma once
+
 #include "opencv2/core/core.hpp" 
 
 using namespace std;
 using namespace cv;
 
-class CrossSignRect
+class StopSignRect
 {
 public:
 	Vec2d RWcoordinates;
-	Rect  rect;
+	Rect rect;
 
-	CrossSignRect(Rect);
-	~CrossSignRect();
+	StopSignRect(Rect r);
+	~StopSignRect();
 };
 
