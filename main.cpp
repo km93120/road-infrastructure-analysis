@@ -152,7 +152,7 @@ int main(int argc, const char** argv)
 
 			// Project a 3D point (0, 0, 1000.0) into the image plane.
 			// Pourrait etre utilise pour la RA
-
+			/*
 			vector<Point3d> test_end_point3D;
 			vector<Point2d> test_end_point2D;
 			test_end_point3D.push_back(Point3d(0, 0, 1000.0));
@@ -175,7 +175,7 @@ int main(int argc, const char** argv)
 			// Display image.
 			imshow("Output", frame1);
 			waitKey(0);
-
+			*/
 
 			//------------------------------------------- AR computing ends here -------------------------------------------------------------------------------
 
