@@ -62,26 +62,22 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 			
 			int verticesNumber = approx.size();
 
-			// Get the cosines of all corners
-			std::vector<double> cos;
-			for (int j = 2; j < verticesNumber + 1; j++)
-				cos.push_back(angle(approx[j%verticesNumber], approx[j - 2], approx[j - 1]));
-
-			// Sort ascending the cosine values
-			sort(cos.begin(), cos.end());
-
-			// Get the lowest and the highest cosine
-			double mincos = cos.front();
-			double maxcos = cos.back();
-			cout << "triangleFalse";
-			if (abs(mincos) <= 0.55 && abs(maxcos) >= 0.45)
+			
+			
+			
+			cout << "triangle";
+			Rect bdr = boundingRect(approx);
+			rectangle(bw, bdr, Scalar(255, 0, 0));
+			boundingRects.triangleBoundingRects.push_back(boundingRect(approx));
+			triangleDetected = true;
+			/*if (abs(mincos) <= 0.55 && abs(maxcos) >= 0.45)
 			{
 				triangleDetected = true;
 				Rect bdr = boundingRect(approx);
 				rectangle(bw, bdr, Scalar(255, 0, 0));
 				boundingRects.triangleBoundingRects.push_back(boundingRect(approx));
 				cout << "triangleTrue";
-			}
+			}*/
 			   // Triangles
 			
 
@@ -137,7 +133,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 			
 
 			// Detect and label circles
-			/*double area = cv::contourArea(contours[i]);
+			double area = cv::contourArea(contours[i]);
 			cv::Rect r = cv::boundingRect(contours[i]);
 			int radius = r.width / 2;
 
@@ -149,13 +145,13 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 				cout << "APPROX SIZE"<< approx.size() << endl ;
 				boundingRects.circleBoundingRects.push_back(r);
 				circleDetected = true;
-			}*/
+			}
 				
 		}
 		cout << approx.size();
 	}
 
-	vector<Vec3f> circles;
+	/*vector<Vec3f> circles;
 
 	/// Apply the Hough Transform to find the circles
 	HoughCircles(gray, circles, HOUGH_GRADIENT, 1, gray.rows / 16, 255, 50, 0, 0);
@@ -170,7 +166,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 		boundingRects.circleBoundingRects.push_back(r);
 		circleDetected = true;
 		cout << "circle";
-	}
+	}*/
 
 
 	if (triangleDetected)
@@ -227,6 +223,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 	double fx = 1 / scale;
 	resize(gray, smallImg, Size(), fx, fx, INTER_LINEAR_EXACT);
 	equalizeHist(gray, gray);
+	Rect temp;
 	switch (op_code)
 	{
 		case CARS_DETECTION:
@@ -276,6 +273,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 
 			for (int i = 0; i < boundingRects.triangleBoundingRects.size(); i++)
 			{
+				temp = boundingRects.triangleBoundingRects.at(i);
 				Rect r;
 				cv::Size deltaSize(boundingRects.triangleBoundingRects.at(i).width * 0.2f,
 					boundingRects.triangleBoundingRects.at(i).height *0.2f);
@@ -283,8 +281,8 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
 
 
-				//boundingRects.triangleBoundingRects.at(i) += deltaSize;
-				//boundingRects.triangleBoundingRects.at(i) -= offset;
+				boundingRects.triangleBoundingRects.at(i) += deltaSize;
+				boundingRects.triangleBoundingRects.at(i) -= offset;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
 				rectangle(img, boundingRects.triangleBoundingRects.at(i), Scalar(255, 0, 0));
@@ -301,7 +299,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 
 				if (!objects.empty())
 				{
-					boundingRects.crossSignRects.push_back(CrossSignRect(boundingRects.triangleBoundingRects.at(i)));//candidate contour is accepted
+					boundingRects.crossSignRects.push_back(CrossSignRect(temp));//candidate contour is accepted
 				}
 				
 			}
@@ -310,6 +308,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 		case PROHIBITED_DIRECTION_SIGN_DETECTION:
 			for (int i = 0; i < boundingRects.circleBoundingRects.size(); i++)
 			{
+				temp = boundingRects.circleBoundingRects.at(i);
 				Rect r;
 				cv::Size deltaSize(boundingRects.circleBoundingRects.at(i).width * 0.2f,
 					boundingRects.circleBoundingRects.at(i).height *0.2f);
@@ -335,7 +334,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 
 				if (!objects.empty())
 				{
-					boundingRects.circularSignRects.push_back(CircularSignRect(boundingRects.circleBoundingRects.at(i)));//candidate contour is accepted
+					boundingRects.circularSignRects.push_back(CircularSignRect(temp));//candidate contour is accepted
 				}
 				outString = "sensInterdit";
 			}
@@ -344,14 +343,15 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 
 			for (int i = 0; i < boundingRects.triangleBoundingRects.size(); i++)
 			{
+				temp = boundingRects.triangleBoundingRects.at(i);
 				Rect r;
 				cv::Size deltaSize(boundingRects.triangleBoundingRects.at(i).width * 0.2f,
 					boundingRects.triangleBoundingRects.at(i).height *0.2f);
 				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
 
 
-				//boundingRects.triangleBoundingRects.at(i) += deltaSize;
-				//boundingRects.triangleBoundingRects.at(i) -= offset;
+				boundingRects.triangleBoundingRects.at(i) += deltaSize;
+				boundingRects.triangleBoundingRects.at(i) -= offset;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
 				rectangle(img, boundingRects.triangleBoundingRects.at(i), Scalar(255, 0, 0));
@@ -368,7 +368,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 
 				if (!objects.empty())
 				{
-					boundingRects.rpSignRects.push_back(RPSignRect(boundingRects.triangleBoundingRects.at(i)));//candidate contour is accepted
+					boundingRects.rpSignRects.push_back(RPSignRect(temp));//candidate contour is accepted
 				}
 
 			}
@@ -485,7 +485,7 @@ void drawRects(BoundingRects rects,Mat & frame)
 
 	}
 
-	for (size_t i = 0; i < rects.circularSignRects.size(); i++)
+	for (size_t i = 0; i < rects.circularSignRects.size(); i++) //sens interdit
 	{
 		Rect r = rects.circularSignRects[i].rect;
 
@@ -508,6 +508,84 @@ void drawRects(BoundingRects rects,Mat & frame)
 
 
 		putText(frame, "sens interdit", Point(r.x + r.width, r.y + r.height), FONT_HERSHEY_COMPLEX_SMALL, 1.0, Scalar(255, 255, 255));
+
+
+	}
+	for (size_t i = 0; i < rects.crossSignRects.size(); i++)
+	{
+		Rect r = rects.crossSignRects[i].rect;
+
+		Point center;
+		Scalar color = colors[i % 8];
+		int radius;
+
+		double aspect_ratio = (double)r.width / r.height;
+		if (0.75 < aspect_ratio && aspect_ratio < 1.3)
+		{
+			center.x = cvRound((r.x + r.width*0.5));
+			center.y = cvRound((r.y + r.height*0.5));
+			radius = cvRound((r.width + r.height)*0.25);
+			circle(frame, center, radius, color, 3, 8, 0);
+		}
+		else
+			rectangle(frame, Point(cvRound(r.x), cvRound(r.y)),
+				Point(cvRound((r.x + r.width - 1)), cvRound((r.y + r.height - 1))),
+				color, 3, 8, 0);
+
+
+		putText(frame, "pedestrian crossing", Point(r.x + r.width, r.y + r.height), FONT_HERSHEY_COMPLEX_SMALL, 1.0, Scalar(255, 255, 255));
+
+
+	}
+	for (size_t i = 0; i < rects.stopSignRects.size(); i++)
+	{
+		Rect r = rects.stopSignRects[i].rect;
+
+		Point center;
+		Scalar color = colors[i % 8];
+		int radius;
+
+		double aspect_ratio = (double)r.width / r.height;
+		if (0.75 < aspect_ratio && aspect_ratio < 1.3)
+		{
+			center.x = cvRound((r.x + r.width*0.5));
+			center.y = cvRound((r.y + r.height*0.5));
+			radius = cvRound((r.width + r.height)*0.25);
+			circle(frame, center, radius, color, 3, 8, 0);
+		}
+		else
+			rectangle(frame, Point(cvRound(r.x), cvRound(r.y)),
+				Point(cvRound((r.x + r.width - 1)), cvRound((r.y + r.height - 1))),
+				color, 3, 8, 0);
+
+
+		putText(frame, "stop sign", Point(r.x + r.width, r.y + r.height), FONT_HERSHEY_COMPLEX_SMALL, 1.0, Scalar(255, 255, 255));
+
+
+	}
+	for (size_t i = 0; i < rects.rpSignRects.size(); i++)
+	{
+		Rect r = rects.rpSignRects[i].rect;
+
+		Point center;
+		Scalar color = colors[i % 8];
+		int radius;
+
+		double aspect_ratio = (double)r.width / r.height;
+		if (0.75 < aspect_ratio && aspect_ratio < 1.3)
+		{
+			center.x = cvRound((r.x + r.width*0.5));
+			center.y = cvRound((r.y + r.height*0.5));
+			radius = cvRound((r.width + r.height)*0.25);
+			circle(frame, center, radius, color, 3, 8, 0);
+		}
+		else
+			rectangle(frame, Point(cvRound(r.x), cvRound(r.y)),
+				Point(cvRound((r.x + r.width - 1)), cvRound((r.y + r.height - 1))),
+				color, 3, 8, 0);
+
+
+		putText(frame, "rp_sign", Point(r.x + r.width, r.y + r.height), FONT_HERSHEY_COMPLEX_SMALL, 1.0, Scalar(255, 255, 255));
 
 
 	}

@@ -128,7 +128,7 @@ int main(int argc, const char** argv)
 			cout << " fDirection sign : " << boundingRects.circularSignRects.size() << " / " << boundingRects.circleBoundingRects.size() << endl;
 			cout << " RP sign : " << boundingRects.rpSignRects.size() << " / " << boundingRects.triangleBoundingRects.size() << endl;
 			//TODO AR computing
-			//drawRects(boundingRects, frame1);
+			drawRects(boundingRects, frame1);
 			//AR computing goes here
 
 
