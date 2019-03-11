@@ -7,10 +7,9 @@ using namespace cv;
 class CrossSignRect
 {
 public:
-	Vec2d RWcoordinates;
+	vector <Point2d> RWdimensions;
 	Rect  rect;
 
 	CrossSignRect(Rect);
 	~CrossSignRect();
 };
-

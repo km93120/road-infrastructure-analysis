@@ -9,11 +9,9 @@ class RPSignRect
 {
 
 public:
-	Vec2d RWcoordinates;
+	vector <Point2d> RWdimensions;
 	Rect  rect;
 
 	RPSignRect(Rect r);
 	~RPSignRect();
 };
-	
-

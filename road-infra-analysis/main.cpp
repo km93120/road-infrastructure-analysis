@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "road-infra-analysis.h"
+#include "3dPoints.h"
 
 using namespace std;
 using namespace cv;
@@ -127,9 +128,66 @@ int main(int argc, const char** argv)
 			cout << " pedestrian crossing signs : " << boundingRects.crossSignRects.size() << " / "  << boundingRects.triangleBoundingRects.size() << endl;
 			cout << " fDirection sign : " << boundingRects.circularSignRects.size() << " / " << boundingRects.circleBoundingRects.size() << endl;
 			cout << " RP sign : " << boundingRects.rpSignRects.size() << " / " << boundingRects.triangleBoundingRects.size() << endl;
-			//TODO AR computing
-			drawRects(boundingRects, frame1);
-			//AR computing goes here
+			
+			
+			//------------------------------------------- AR computing starts here -------------------------------------------------------------------------------
+
+			dPoints pts;
+
+			// Camera internals
+			double focal_length = frame1.cols; // Approximate focal length.
+			Point2d center = Point2d(frame1.cols / 2, frame1.rows / 2);
+			Mat camera_matrix = (Mat_<double>(3, 3) << focal_length, 0, center.x, 0, focal_length, center.y, 0, 0, 1);
+			Mat dist_coeffs = Mat::zeros(4, 1, DataType<double>::type); // Assuming no lens distortion
+
+			cout << "Camera Matrix " << endl << camera_matrix << endl;
+
+			// Output rotation and translation
+			Mat rotation_vector; // Rotation in axis-angle form
+			Mat translation_vector;
+
+			// Solve pour les triangles
+			solvePnP(pts.triangles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+
+			// Solve pour les cercles
+			solvePnP(pts.cercles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+
+			// Solve pour les octogones
+			solvePnP(pts.octos_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+
+			// Solve pour les carrés
+			solvePnP(pts.carres_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+
+			// Project a 3D point (0, 0, 1000.0) into the image plane.
+			// Pourrait etre utilise pour la RA
+			/*
+			vector<Point3d> test_end_point3D;
+			vector<Point2d> test_end_point2D;
+			test_end_point3D.push_back(Point3d(0, 0, 1000.0));
+
+			projectPoints(test_end_point3D, rotation_vector, translation_vector, camera_matrix, dist_coeffs, test_end_point2D);
+
+
+			for (int i = 0; i < image_points.size(); i++)
+			{
+				circle(frame1, image_points[i], 3, Scalar(0, 0, 255), -1);
+			}
+
+			line(frame1, image_points[0], test_end_point2D[0], Scalar(255, 0, 0), 2);
+
+			cout << "Rotation Vector " << endl << rotation_vector << endl;
+			cout << "Translation Vector" << endl << translation_vector << endl;
+
+			cout << test_end_point2D << endl;
+
+			// Display image.
+			imshow("Output", frame1);
+			waitKey(0);
+			*/
+
+			//------------------------------------------- AR computing ends here -------------------------------------------------------------------------------
+
+			//drawRects(boundingRects, frame1);
 
 
 
