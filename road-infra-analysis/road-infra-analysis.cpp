@@ -347,12 +347,11 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				Rect r;
 				cv::Size deltaSize(boundingRects.triangleBoundingRects.at(i).width * 0.2f,
 					boundingRects.triangleBoundingRects.at(i).height *0.2f);
-
 				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
 
 
-				boundingRects.triangleBoundingRects.at(i) += deltaSize;
-				boundingRects.triangleBoundingRects.at(i) -= offset;
+				//boundingRects.triangleBoundingRects.at(i) += deltaSize;
+				//boundingRects.triangleBoundingRects.at(i) -= offset;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
 				rectangle(img, boundingRects.triangleBoundingRects.at(i), Scalar(255, 0, 0));
