@@ -1,7 +1,7 @@
 #include "opencv2/objdetect.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
-
+#include "opencv2/calib3d/calib3d.hpp"
 #include <iostream>
 
 #include "road-infra-analysis.h"
@@ -128,7 +128,7 @@ int main(int argc, const char** argv)
 			cout << " pedestrian crossing signs : " << boundingRects.crossSignRects.size() << " / "  << boundingRects.triangleBoundingRects.size() << endl;
 			cout << " fDirection sign : " << boundingRects.circularSignRects.size() << " / " << boundingRects.circleBoundingRects.size() << endl;
 			cout << " RP sign : " << boundingRects.rpSignRects.size() << " / " << boundingRects.triangleBoundingRects.size() << endl;
-			
+			drawRects(boundingRects, frame);
 			
 			//------------------------------------------- AR computing starts here -------------------------------------------------------------------------------
 
@@ -140,23 +140,23 @@ int main(int argc, const char** argv)
 			Mat camera_matrix = (Mat_<double>(3, 3) << focal_length, 0, center.x, 0, focal_length, center.y, 0, 0, 1);
 			Mat dist_coeffs = Mat::zeros(4, 1, DataType<double>::type); // Assuming no lens distortion
 
-			cout << "Camera Matrix " << endl << camera_matrix << endl;
+			//cout << "Camera Matrix " << endl << camera_matrix << endl;
 
 			// Output rotation and translation
 			Mat rotation_vector; // Rotation in axis-angle form
 			Mat translation_vector;
 
 			// Solve pour les triangles
-			solvePnP(pts.triangles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+			//solvePnP(pts.triangles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
 
 			// Solve pour les cercles
-			solvePnP(pts.cercles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+			//solvePnP(pts.cercles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
 
 			// Solve pour les octogones
-			solvePnP(pts.octos_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+			//solvePnP(pts.octos_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
 
 			// Solve pour les carrés
-			solvePnP(pts.carres_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+			//solvePnP(pts.carres_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
 
 			// Project a 3D point (0, 0, 1000.0) into the image plane.
 			// Pourrait etre utilise pour la RA
@@ -187,7 +187,7 @@ int main(int argc, const char** argv)
 
 			//------------------------------------------- AR computing ends here -------------------------------------------------------------------------------
 
-			//drawRects(boundingRects, frame1);
+			
 
 
 

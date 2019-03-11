@@ -155,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="3dPoints.cpp" />
     <ClCompile Include="BoundingRects.cpp" />
     <ClCompile Include="CarRect.cpp" />
     <ClCompile Include="CircularSignRect.cpp" />
@@ -170,6 +171,7 @@
     <Xml Include="haarcascade_pedestrians.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="3dPoints.h" />
     <ClInclude Include="BoundingRects.h" />
     <ClInclude Include="CarRect.h" />
     <ClInclude Include="CircularSignRect.h" />
