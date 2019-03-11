@@ -1,6 +1,7 @@
 #pragma once
 
 #include "opencv2/core/core.hpp" 
+#include <vector>
 
 using namespace std;
 using namespace cv;
@@ -8,7 +9,7 @@ using namespace cv;
 class CircularSignRect
 {
 public:
-	Vec2d RWcoordinates;
+	vector <Point2d> RWdimensions;
 	Rect  rect;
 
 	CircularSignRect(Rect);
