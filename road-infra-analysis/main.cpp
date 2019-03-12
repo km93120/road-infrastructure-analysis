@@ -147,16 +147,23 @@ int main(int argc, const char** argv)
 			Mat translation_vector;
 
 			// Solve pour les triangles
-			//solvePnP(pts.triangles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+			solvePnP(pts.triangles_points, boundingRects.rpSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
 
 			// Solve pour les cercles
-			//solvePnP(pts.cercles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+			solvePnP(pts.cercles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
 
 			// Solve pour les octogones
-			//solvePnP(pts.octos_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+			solvePnP(pts.octos_points, boundingRects.stopSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
 
 			// Solve pour les carrés
-			//solvePnP(pts.carres_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+			solvePnP(pts.carres_points, boundingRects.crossSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+
+			// Solve pour les piétons
+			solvePnP(pts.pedestrians_points, boundingRects.pedestrianRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+
+			// Solve pour les voitures
+			solvePnP(pts.cars_points, boundingRects.carRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+
 
 			// Project a 3D point (0, 0, 1000.0) into the image plane.
 			// Pourrait etre utilise pour la RA
