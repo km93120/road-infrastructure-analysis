@@ -295,8 +295,8 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2); 
 				 
 				
-				boundingRects.circleBoundingRects.at(i) += deltaSize;
-				boundingRects.circleBoundingRects.at(i) -= offset;
+				//boundingRects.circleBoundingRects.at(i) += deltaSize;
+				//boundingRects.circleBoundingRects.at(i) -= offset;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
 				rectangle(img, boundingRects.circleBoundingRects.at(i), Scalar(255, 0, 0));
