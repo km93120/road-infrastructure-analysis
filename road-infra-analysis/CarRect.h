@@ -8,7 +8,7 @@ using namespace cv;
 class CarRect
 {
 public:
-	vector <Point2d> RWdimensions;
+	vector <Point3d> RWdimensions;
 	Rect  rect;
 
 	CarRect(Rect );

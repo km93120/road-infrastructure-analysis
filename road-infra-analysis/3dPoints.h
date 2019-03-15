@@ -1,6 +1,9 @@
 #pragma once
 
 #include "opencv2/core/core.hpp" 
+#include "BoundingRects.h"
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 using namespace std;
 using namespace cv;
@@ -8,13 +11,10 @@ using namespace cv;
 class dPoints
 {
 public:
-	vector<Point3d> triangles_points;
-	vector<Point3d> cercles_points;
-	vector<Point3d> octos_points;
-	vector<Point3d> carres_points;
-	vector<Point3d> pedestrians_points;
-	vector<Point3d> cars_points;
 
+	BoundingRects boundingRects;	
+	void setBoundingRects(BoundingRects);
+	void computePose(Mat img);
 	dPoints();
 	~dPoints();
 };

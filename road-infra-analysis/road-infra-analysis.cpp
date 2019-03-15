@@ -14,7 +14,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 {
 	
 	clock_t begin = clock();
-	int lowCannyThreshold = 100;
+	int lowCannyThreshold = 75;
 	
 	bool triangleDetected = false;
 	bool rectangleDetected = false;
@@ -84,7 +84,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 			Rect bdr = boundingRect(approx);
 			boundingRects.octogonRects.push_back(bdr);
 		}
-		/*else
+		else
 		{
 			// Detect and label circles
 			double area = cv::contourArea(contours[i]);
@@ -101,11 +101,11 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 				circleDetected = true;
 			}
 				
-		}*/
+		}
 		//cout << approx.size();
 	}
 
-	vector<Vec3f> circles;
+	/*vector<Vec3f> circles;
 
 	/// Apply the Hough Transform to find the circles
 	HoughCircles(gray, circles, HOUGH_GRADIENT, 1, gray.rows / 16, 255, 50, 0, 0);
@@ -120,7 +120,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 		boundingRects.circleBoundingRects.push_back(r);
 		circleDetected = true;
 		cout << "circle";
-	}
+	}*/
 
 
 	if (triangleDetected)
