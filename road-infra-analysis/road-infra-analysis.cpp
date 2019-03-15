@@ -19,7 +19,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	bool triangleDetected = false;
 	bool rectangleDetected = false;
 	bool circleDetected = false;
-	bool hexagonDetected = false;
+	bool octogonDetected = false;
 
 	vector<int> outVector;
 	// Convert to grayscale
@@ -32,8 +32,8 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	// Use Canny instead of threshold to catch squares with gradient shading
 	Mat bw,structuringElement;
 
-	//bilateralFilter(gray, bw, 5,10,10);
-	bw = gray.clone();
+	bilateralFilter(gray, bw, 5,10,10);
+	//bw = gray.clone();
 	//GaussianBlur(bw, blurred, Size(5, 5), 0.0, 0.0);
 	Canny(bw, bw, lowCannyThreshold,lowCannyThreshold*3); //0,50 originally
 	
@@ -51,20 +51,17 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	{
 		// Approximate contour with accuracy proportional
 		// to the contour perimeter
-		cv::approxPolyDP(cv::Mat(contours[i]), approx, cv::arcLength(cv::Mat(contours[i]), true)*0.02, true);
+		approxPolyDP(Mat(contours[i]), approx, 3, true);
+		//approxPolyDP(cv::Mat(contours[i]), approx, cv::arcLength(cv::Mat(contours[i]), true)*0.02, true);
 
 		// Skip small or non-convex objects 
-		if (std::fabs(cv::contourArea(contours[i])) < 2500 || !cv::isContourConvex(approx))
+		if (std::fabs(cv::contourArea(contours[i])) < 1000 || !cv::isContourConvex(approx))
 			continue;
-
+	
 		if (approx.size() == 3)
 		{
-			
 			int verticesNumber = approx.size();
 
-			
-			
-			
 			cout << "triangle";
 			Rect bdr = boundingRect(approx);
 			rectangle(bw, bdr, Scalar(255, 0, 0));
@@ -79,79 +76,36 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 				cout << "triangleTrue";
 			}*/
 			   // Triangles
-			
-
-
-
 		}
-		else if (approx.size() >= 4 && approx.size() <= 6)
+		if (approx.size() == 8)
 		{
-			// Number of vertices of polygonal curve
-			int vtc = approx.size();
-
-			// Get the cosines of all corners
-			vector<double> cos;
-			for (int j = 2; j < vtc + 1; j++)
-				cos.push_back(angle(approx[j%vtc], approx[j - 2], approx[j - 1]));
-
-			// Sort ascending the cosine values
-			std::sort(cos.begin(), cos.end());
-
-			// Get the lowest and the highest cosine
-			double mincos = cos.front();
-			double maxcos = cos.back();
-			cout << vtc;
-			// Use the degrees obtained above and the number of vertices
-			// to determine the shape of the contour
-			if (vtc == 4 && mincos >= -0.1 && maxcos <= 0.3)
-			{
-				cout << "rectangle";
-				rectangleDetected = true;
-
-			}
-			else if (vtc == 8)
-			{
-				cout << "octo";
-			}
-			else if (vtc == 5 && mincos >= -0.34 && maxcos <= -0.27)
-			{
-				cout << "penta";
-			}
-			else if (vtc == 6 && mincos >= -0.55 && maxcos <= -0.45)
-			{
-				hexagonDetected = true;
-				cout << "hexa";
-			}
-			
-			
-
+			cout << "octo";
+			octogonDetected = true;
+			Rect bdr = boundingRect(approx);
+			boundingRects.octogonRects.push_back(bdr);
 		}
-		
-		else
+		/*else
 		{
-
-			
-
 			// Detect and label circles
 			double area = cv::contourArea(contours[i]);
 			cv::Rect r = cv::boundingRect(contours[i]);
 			int radius = r.width / 2;
 
-			if (std::abs(1 - ((double)r.width / r.height)) <= 0.1 &&
-				std::abs(1 - (area / (CV_PI * std::pow(radius, 2)))) <= 0.1
+			if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
+				std::abs(1 - (area / (CV_PI * std::pow(radius, 2)))) <= 0.2
 				)
 			{
 				cout << "circle" << endl;
-				cout << "APPROX SIZE"<< approx.size() << endl ;
+				//cout << "APPROX SIZE"<< approx.size() << endl ;
 				boundingRects.circleBoundingRects.push_back(r);
 				circleDetected = true;
 			}
 				
-		}
-		cout << approx.size();
+		}*/
+		//cout << approx.size();
 	}
 
-	/*vector<Vec3f> circles;
+	vector<Vec3f> circles;
 
 	/// Apply the Hough Transform to find the circles
 	HoughCircles(gray, circles, HOUGH_GRADIENT, 1, gray.rows / 16, 255, 50, 0, 0);
@@ -166,7 +120,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 		boundingRects.circleBoundingRects.push_back(r);
 		circleDetected = true;
 		cout << "circle";
-	}*/
+	}
 
 
 	if (triangleDetected)
@@ -186,9 +140,9 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 		
 	}
 
-	if (hexagonDetected)
+	if (octogonDetected)
 	{
-		//outVector.push_back(STOP_SIGN_DETECTION );
+		outVector.push_back(STOP_SIGN_DETECTION);
 	}
 
 	clock_t end = clock();
@@ -260,13 +214,37 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 			outString = "pedestrian";
 		break;
 		case STOP_SIGN_DETECTION:
-			cascade.detectMultiScale(
-				smallImg,
-				objects,
-				1.05,
-				10,
-				CASCADE_DO_CANNY_PRUNING,
-				Size(30, 30));
+			for (int i = 0; i < boundingRects.octogonRects.size(); i++)
+			{
+				temp = boundingRects.octogonRects.at(i);
+				Rect r;
+				cv::Size deltaSize(boundingRects.octogonRects.at(i).width * 0.1f,
+					boundingRects.octogonRects.at(i).height *0.1f);
+
+				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
+
+				//boundingRects.octogonRects.at(i) += deltaSize;
+				//boundingRects.octogonRects.at(i) -= offset;
+				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
+																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
+				rectangle(img, boundingRects.octogonRects.at(i), Scalar(255, 0, 0));
+				ROI = img(boundingRects.octogonRects.at(i));
+				//imshow("ss", img);
+
+				cascade.detectMultiScale(
+					ROI,
+					objects,
+					1.05,
+					2,
+					CASCADE_FIND_BIGGEST_OBJECT,
+					Size(5, 5));
+
+				if (!objects.empty())
+				{
+					boundingRects.stopSignRects.push_back(StopSignRect(temp));//candidate contour is accepted
+				}
+
+			}
 			outString = "stop_sign";
 			break;
 		case PEDESTRIAN_CROSSING_SIGN_DETECTION:
@@ -275,14 +253,13 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 			{
 				temp = boundingRects.triangleBoundingRects.at(i);
 				Rect r;
-				cv::Size deltaSize(boundingRects.triangleBoundingRects.at(i).width * 0.2f,
-					boundingRects.triangleBoundingRects.at(i).height *0.2f);
+				cv::Size deltaSize(boundingRects.triangleBoundingRects.at(i).width * 0.1f,
+					boundingRects.triangleBoundingRects.at(i).height *0.1f);
 
 				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
 
-
-				boundingRects.triangleBoundingRects.at(i) += deltaSize;
-				boundingRects.triangleBoundingRects.at(i) -= offset;
+				//boundingRects.triangleBoundingRects.at(i) += deltaSize;
+				//boundingRects.triangleBoundingRects.at(i) -= offset;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
 				rectangle(img, boundingRects.triangleBoundingRects.at(i), Scalar(255, 0, 0));
@@ -294,7 +271,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 					objects,
 					1.05,
 					5,
-					CASCADE_DO_CANNY_PRUNING,
+					CASCADE_FIND_BIGGEST_OBJECT,
 					Size(5, 5));
 
 				if (!objects.empty())
@@ -309,6 +286,8 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 			for (int i = 0; i < boundingRects.circleBoundingRects.size(); i++)
 			{
 				temp = boundingRects.circleBoundingRects.at(i);
+				if (temp.x + temp.width > img.cols || temp.y + temp.height > img.rows|| temp.x < 0 || temp.y < 0 )
+					continue;
 				Rect r;
 				cv::Size deltaSize(boundingRects.circleBoundingRects.at(i).width * 0.2f,
 					boundingRects.circleBoundingRects.at(i).height *0.2f);
@@ -322,14 +301,14 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
 				rectangle(img, boundingRects.circleBoundingRects.at(i), Scalar(255, 0, 0));
 				ROI = img(boundingRects.circleBoundingRects.at(i));
-				//imshow("ss", img);
+				imshow("ss", img);
 				
 				cascade.detectMultiScale(
 					ROI,
 					objects,
 					1.05,
 					5,
-					CASCADE_DO_CANNY_PRUNING,
+					CASCADE_FIND_BIGGEST_OBJECT,
 					Size(5, 5));
 
 				if (!objects.empty())
@@ -345,13 +324,13 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 			{
 				temp = boundingRects.triangleBoundingRects.at(i);
 				Rect r;
-				cv::Size deltaSize(boundingRects.triangleBoundingRects.at(i).width * 0.2f,
-					boundingRects.triangleBoundingRects.at(i).height *0.2f);
+				cv::Size deltaSize(boundingRects.triangleBoundingRects.at(i).width * 0.1f,
+					boundingRects.triangleBoundingRects.at(i).height *0.1f);
 				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
 
 
-				boundingRects.triangleBoundingRects.at(i) += deltaSize;
-				boundingRects.triangleBoundingRects.at(i) -= offset;
+				//boundingRects.triangleBoundingRects.at(i) += deltaSize;
+				//boundingRects.triangleBoundingRects.at(i) -= offset;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
 				rectangle(img, boundingRects.triangleBoundingRects.at(i), Scalar(255, 0, 0));
@@ -363,7 +342,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 					objects,
 					1.05,
 					2,
-					CASCADE_DO_CANNY_PRUNING,
+					CASCADE_FIND_BIGGEST_OBJECT,
 					Size(5, 5));
 
 				if (!objects.empty())
@@ -383,37 +362,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 	return;
 
 	
-
-	t = (double)getTickCount() - t;
-	printf("detection time = %g ms\n", t * 1000 / getTickFrequency());
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		Rect r = objects[i];
-		Mat smallImgROI;
-
-		Point center;
-		Scalar color = colors[i % 8];	
-		int radius;
-
-		double aspect_ratio = (double)r.width / r.height;
-		if (0.75 < aspect_ratio && aspect_ratio < 1.3)
-		{
-			center.x = cvRound((r.x + r.width*0.5)*scale);
-			center.y = cvRound((r.y + r.height*0.5)*scale);
-			radius = cvRound((r.width + r.height)*0.25*scale);
-			circle(img, center, radius, color, 3, 8, 0);
-		}
-		else
-			rectangle(img, Point(cvRound(r.x*scale), cvRound(r.y*scale)),
-				Point(cvRound((r.x + r.width - 1)*scale), cvRound((r.y + r.height - 1)*scale)),
-				color, 3, 8, 0);
-
-
-		putText(img, outString, Point(r.x + r.width, r.y + r.height), FONT_HERSHEY_COMPLEX_SMALL, 1.0, Scalar(255, 255, 255));
-
-
-	}
-	imshow("result", img);			// on affiche le resultat
+			// on affiche le resultat
 
 }
 

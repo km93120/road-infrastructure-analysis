@@ -12,7 +12,7 @@ using namespace cv;
 
 int main(int argc, const char** argv)
 {
-
+	
 
 	string carCascadeName, 
 		   pedestrianCascadeName, 
@@ -122,14 +122,16 @@ int main(int argc, const char** argv)
 			}
 			
 			
-			//detectAndDraw(frame1, carCascade, scale,0 ,boundingRects );
-			//detectAndDraw(frame1, pedestrianCascade, scale, 1, boundingRects);
+			detectAndDraw(frame1, carCascade, scale,0 ,boundingRects );
+			detectAndDraw(frame1, pedestrianCascade, scale, 1, boundingRects);
+
+			//pedestrianDetectAndDraw(frame1, fDirSignCascade, scale);
 			//pedestrianDetectAndDraw(frame,crossSignCascade, scale);
 			cout << " pedestrian crossing signs : " << boundingRects.crossSignRects.size() << " / "  << boundingRects.triangleBoundingRects.size() << endl;
 			cout << " fDirection sign : " << boundingRects.circularSignRects.size() << " / " << boundingRects.circleBoundingRects.size() << endl;
 			cout << " RP sign : " << boundingRects.rpSignRects.size() << " / " << boundingRects.triangleBoundingRects.size() << endl;
-			drawRects(boundingRects, frame);
 			
+			drawRects(boundingRects, frame);
 			//------------------------------------------- AR computing starts here -------------------------------------------------------------------------------
 
 			dPoints pts;
@@ -139,15 +141,15 @@ int main(int argc, const char** argv)
 			Point2d center = Point2d(frame1.cols / 2, frame1.rows / 2);
 			Mat camera_matrix = (Mat_<double>(3, 3) << focal_length, 0, center.x, 0, focal_length, center.y, 0, 0, 1);
 			Mat dist_coeffs = Mat::zeros(4, 1, DataType<double>::type); // Assuming no lens distortion
-
+			//projectPoints , projeter
 			//cout << "Camera Matrix " << endl << camera_matrix << endl;
 
 			// Output rotation and translation
 			Mat rotation_vector; // Rotation in axis-angle form
 			Mat translation_vector;
 
-			// Solve pour les triangles
-			//solvePnP(pts.triangles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+			//Solve pour les triangles
+			//solvePnP(pts.triangles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector,false,SOLVEPNP_ITERATIVE);
 
 			// Solve pour les cercles
 			//solvePnP(pts.cercles_points, boundingRects.circularSignRects, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
@@ -187,7 +189,6 @@ int main(int argc, const char** argv)
 
 			//------------------------------------------- AR computing ends here -------------------------------------------------------------------------------
 
-			
 
 
 
