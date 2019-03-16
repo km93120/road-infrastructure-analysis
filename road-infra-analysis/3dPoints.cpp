@@ -40,6 +40,30 @@ void dPoints::computePose(Mat img)
 		}
 
 	}
+
+	for (int i = 0; i < boundingRects.pedestrianRects.size(); i++)
+	{
+		vector<Point3d> RWpoints = boundingRects.pedestrianRects.at(i).RWdimensions;
+		Rect r = boundingRects.pedestrianRects.at(i).rect;
+		vector<Point2d> imagePoints;
+		imagePoints.push_back(Point2d(r.x, r.y));
+		imagePoints.push_back(Point2d(r.x + r.width, r.y));
+		imagePoints.push_back(Point2d(r.x + r.width, r.y + r.height));
+		imagePoints.push_back(Point2d(r.x, r.y + r.height));
+
+		solvePnP(RWpoints, imagePoints, cameraMatrix, dist_coeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE);
+		std::cout << tvec.at<double>(0, 2) << endl;
+		if (tvec.at<double>(0, 2) < 20)
+		{
+			cv::line(img, Point(img.cols / 2, img.rows), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(0, 0, 255), 2);
+		}
+
+		else
+		{
+			cv::line(img, Point(img.cols / 2, img.rows), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(255, 0, 0));
+		}
+
+	}
 	imshow("pose", img);
 }
 
