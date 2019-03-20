@@ -35,27 +35,27 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	bilateralFilter(gray, bw, 5,10,10);
 	//bw = gray.clone();
 	//GaussianBlur(bw, blurred, Size(5, 5), 0.0, 0.0);
-	Canny(bw, bw, lowCannyThreshold,lowCannyThreshold*3); //0,50 originally
+	Canny(bw, bw, lowCannyThreshold,lowCannyThreshold*2); //0,50 originally
 	
 	structuringElement = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
-	morphologyEx(bw, bw, MORPH_CLOSE, structuringElement);
+	//morphologyEx(bw, bw, MORPH_CLOSE, structuringElement);
 
 	// Find contours
 	vector<std::vector<cv::Point> > contours;
-	findContours(bw.clone(), contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+	findContours(bw.clone(), contours, RETR_CCOMP, CHAIN_APPROX_SIMPLE);
 	
 	vector<cv::Point> approx;
 	cv::Mat dst = img.clone();
 
-	for (int i = 0; i < contours.size(); i++)
+	for(int i = 0; i < contours.size(); i++)
 	{
 		// Approximate contour with accuracy proportional
 		// to the contour perimeter
-		approxPolyDP(Mat(contours[i]), approx, 3, true);
+		approxPolyDP(Mat(contours[i]), approx, cv::arcLength(cv::Mat(contours[i]), true)*0.01, true);
 		//approxPolyDP(cv::Mat(contours[i]), approx, cv::arcLength(cv::Mat(contours[i]), true)*0.02, true);
 
 		// Skip small or non-convex objects 
-		if (std::fabs(cv::contourArea(contours[i])) < 1000 || !cv::isContourConvex(approx))
+		if (std::fabs(cv::contourArea(contours[i])) < 500 || !cv::isContourConvex(approx))
 			continue;
 	
 		if (approx.size() == 3)
@@ -91,9 +91,8 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 			cv::Rect r = cv::boundingRect(contours[i]);
 			int radius = r.width / 2;
 
-			if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
-				std::abs(1 - (area / (CV_PI * std::pow(radius, 2)))) <= 0.2
-				)
+			//if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
+				if(std::abs(1 - (area / (CV_PI * std::pow(radius, 2)))) <= 0.2)
 			{
 				cout << "circle" << endl;
 				//cout << "APPROX SIZE"<< approx.size() << endl ;
@@ -128,7 +127,6 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 		outVector.push_back(PEDESTRIAN_CROSSING_SIGN_DETECTION);
 		outVector.push_back(RIGHT_PRECEDENCE_SIGN_DETECTION);
 	}
-	
 	if (rectangleDetected)
 	{
 		
@@ -151,7 +149,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	imshow("s", bw);
 	return outVector;
 	
-
+	//project points -- find homography -- warppespective
 
 }
 
@@ -223,8 +221,14 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 
 				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
 
-				//boundingRects.octogonRects.at(i) += deltaSize;
-				//boundingRects.octogonRects.at(i) -= offset;
+				boundingRects.octogonRects.at(i) += deltaSize;
+				boundingRects.octogonRects.at(i) -= offset;
+
+				if (boundingRects.octogonRects.at(i).x + boundingRects.octogonRects.at(i).width > img.cols ||
+					boundingRects.octogonRects.at(i).y + boundingRects.octogonRects.at(i).height > img.rows ||
+					boundingRects.octogonRects.at(i).x < 0 ||
+					boundingRects.octogonRects.at(i).y < 0)
+					continue;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
 				rectangle(img, boundingRects.octogonRects.at(i), Scalar(255, 0, 0));
@@ -286,8 +290,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 			for (int i = 0; i < boundingRects.circleBoundingRects.size(); i++)
 			{
 				temp = boundingRects.circleBoundingRects.at(i);
-				if (temp.x + temp.width > img.cols || temp.y + temp.height > img.rows|| temp.x < 0 || temp.y < 0 )
-					continue;
+				
 				Rect r;
 				cv::Size deltaSize(boundingRects.circleBoundingRects.at(i).width * 0.2f,
 					boundingRects.circleBoundingRects.at(i).height *0.2f);
@@ -295,8 +298,13 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				cv::Point offset(deltaSize.width / 2, deltaSize.height / 2); 
 				 
 				
-				//boundingRects.circleBoundingRects.at(i) += deltaSize;
-				//boundingRects.circleBoundingRects.at(i) -= offset;
+				boundingRects.circleBoundingRects.at(i) += deltaSize;
+				boundingRects.circleBoundingRects.at(i) -= offset;
+				if (boundingRects.circleBoundingRects.at(i).x + boundingRects.circleBoundingRects.at(i).width > img.cols ||
+					boundingRects.circleBoundingRects.at(i).y + boundingRects.circleBoundingRects.at(i).height > img.rows || 
+					boundingRects.circleBoundingRects.at(i).x < 0 || 
+					boundingRects.circleBoundingRects.at(i).y < 0)
+					continue;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
 				rectangle(img, boundingRects.circleBoundingRects.at(i), Scalar(255, 0, 0));

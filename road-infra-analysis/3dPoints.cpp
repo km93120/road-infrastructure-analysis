@@ -3,20 +3,26 @@
 
 #include <iostream>
 
+dPoints::dPoints()
+{
+
+	cameraMatrix = (Mat_<double>(3, 3) << 828.6221, 0.0000, 326.4434,
+		0.0000, 826.9493, 245.2840,
+		0.0000, 0.0000, 1.0000);
+   
+	dist_coeffs = Mat::zeros(4, 1, DataType<double>::type);
+
+	carAlertObject = CarAlertObject();
+
+}
 
 void dPoints::setBoundingRects(BoundingRects  boundingRects)
 {
 	this->boundingRects = boundingRects;
 }
 
-void dPoints::computePose(Mat img)
+void dPoints::computePose(Mat &img)
 {
-	Mat rvec, tvec;
-	static  Mat cameraMatrix = (Mat_<double>(3, 3) << 828.6221, 0.0000, 326.4434, 
-													  0.0000, 826.9493, 245.2840,
-													  0.0000, 0.0000, 1.0000 );
-	Mat dist_coeffs = Mat::zeros(4, 1, DataType<double>::type);
-
 	for (int i = 0; i < boundingRects.carRects.size(); i++)
 	{
 		vector<Point3d> RWpoints = boundingRects.carRects.at(i).RWdimensions;
@@ -28,8 +34,22 @@ void dPoints::computePose(Mat img)
 		imagePoints.push_back(Point2d(r.x, r.y + r.height));
 
 		solvePnP(RWpoints, imagePoints, cameraMatrix, dist_coeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE);
+
+		// <recalage virtuel>
+		/*vector <Point3f> inputPoints = carAlertObject.dimensions;
+		vector <Point2d> carAlertObjectImagePoints;
+
+		cv::projectPoints(inputPoints, rvec, tvec, cameraMatrix, dist_coeffs, carAlertObjectImagePoints);
+
+		Mat clone = img.clone();
+		Mat M;
+		findHomography(carAlertObjectImagePoints, imagePoints, M);
+		warpPerspective(clone, img, M, img.size());*/
+		
+		//</recalage virtuel> 
 		std::cout << tvec.at<double>(0,2)<< endl;
-		if (tvec.at<double>(0, 2) < 20)
+		double z = tvec.at<double>(0, 2);
+		if (z < 20)
 		{
 			cv::line(img, Point(img.cols / 2, img.rows), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(0, 0, 255),2);
 		}
@@ -38,8 +58,15 @@ void dPoints::computePose(Mat img)
 		{
 			cv::line(img, Point(img.cols / 2, img.rows), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(255, 0, 0));
 		}
+		std::ostringstream strs;
+		strs << z; 
+		std::string str = strs.str();
+		putText(img, str, Point(r.x + r.width + 10, r.y + r.height / 2),1,1,Scalar(0,0,255));
 
 	}
+
+
+
 
 	for (int i = 0; i < boundingRects.pedestrianRects.size(); i++)
 	{
@@ -67,13 +94,16 @@ void dPoints::computePose(Mat img)
 	imshow("pose", img);
 }
 
-dPoints::dPoints()
+void dPoints::projectPoints(Mat &img)
 {
-	// 3D model points.
-	// Pour les triangles
+	vector <Point3f> inputPoints = carAlertObject.dimensions;
+	vector <Point2f> imagePoints;
+	cv::projectPoints(inputPoints, rvec, tvec, cameraMatrix, dist_coeffs, imagePoints);
 
 
 }
+
+
 
 
 dPoints::~dPoints()
