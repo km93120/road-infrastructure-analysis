@@ -184,6 +184,12 @@
     <ClInclude Include="RPSignRect.h" />
     <ClInclude Include="StopSignRect.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="warning.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="videotest.mp4" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -92,4 +92,14 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="warning.jpg">
+      <Filter>Fichiers sources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="videotest.mp4">
+      <Filter>Fichiers sources</Filter>
+    </Media>
+  </ItemGroup>
 </Project>

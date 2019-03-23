@@ -6,7 +6,6 @@ CarRect::CarRect(Rect r)
 {
 	rect = r;
 
-	// 2D image points. 
 	RWdimensions.push_back(Point3d(0.0f, 0.0f,0.0f));
 	RWdimensions.push_back(Point3d(1.78f, 0.0f, 0.0f));
 	RWdimensions.push_back(Point3d(1.78f, 1.35f, 0.0f));

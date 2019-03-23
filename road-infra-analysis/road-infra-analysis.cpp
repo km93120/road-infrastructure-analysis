@@ -146,7 +146,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	clock_t end = clock();
 	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 	std::cout << elapsed_secs << std::endl;
-	imshow("s", bw);
+	//imshow("s", bw);
 	return outVector;
 	
 	//project points -- find homography -- warppespective
@@ -231,7 +231,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 					continue;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
-				rectangle(img, boundingRects.octogonRects.at(i), Scalar(255, 0, 0));
+				//rectangle(img, boundingRects.octogonRects.at(i), Scalar(255, 0, 0));
 				ROI = img(boundingRects.octogonRects.at(i));
 				//imshow("ss", img);
 
@@ -266,7 +266,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				//boundingRects.triangleBoundingRects.at(i) -= offset;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
-				rectangle(img, boundingRects.triangleBoundingRects.at(i), Scalar(255, 0, 0));
+				//rectangle(img, boundingRects.triangleBoundingRects.at(i), Scalar(255, 0, 0));
 				ROI = img(boundingRects.triangleBoundingRects.at(i));
 				//imshow("ss", img);
 
@@ -307,9 +307,9 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 					continue;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
-				rectangle(img, boundingRects.circleBoundingRects.at(i), Scalar(255, 0, 0));
+				//rectangle(img, boundingRects.circleBoundingRects.at(i), Scalar(255, 0, 0));
 				ROI = img(boundingRects.circleBoundingRects.at(i));
-				imshow("ss", img);
+				//imshow("ss", img);
 				
 				cascade.detectMultiScale(
 					ROI,
@@ -341,7 +341,7 @@ void detectAndDraw(Mat & img, CascadeClassifier & cascade, double scale, int op_
 				//boundingRects.triangleBoundingRects.at(i) -= offset;
 				/*Rect expanded = boundingRects.circleBoundingRects.at(i) + Size(boundingRects.circleBoundingRects.at(i).width*1.1,
 																			   boundingRects.circleBoundingRects.at(i).height*1.1);*/
-				rectangle(img, boundingRects.triangleBoundingRects.at(i), Scalar(255, 0, 0));
+				//rectangle(img, boundingRects.triangleBoundingRects.at(i), Scalar(255, 0, 0));
 				ROI = img(boundingRects.triangleBoundingRects.at(i));
 				//imshow("ss", img);
 
@@ -396,7 +396,7 @@ void drawRects(BoundingRects rects,Mat & frame)
 		Scalar color = colors[i % 8];
 		int radius;
 
-		double aspect_ratio = (double)r.width / r.height;
+		/*double aspect_ratio = (double)r.width / r.height;
 		if (0.75 < aspect_ratio && aspect_ratio < 1.3)
 		{
 			center.x = cvRound((r.x + r.width*0.5));
@@ -404,7 +404,7 @@ void drawRects(BoundingRects rects,Mat & frame)
 			radius = cvRound((r.width + r.height)*0.25);
 			circle(frame, center, radius, color, 3, 8, 0);
 		}
-		else
+		else*/
 			rectangle(frame, Point(cvRound(r.x), cvRound(r.y)),
 				Point(cvRound((r.x + r.width - 1)), cvRound((r.y + r.height - 1))),
 				color, 3, 8, 0);
@@ -546,7 +546,7 @@ void drawRects(BoundingRects rects,Mat & frame)
 
 
 	}
-	imshow("result", frame);			// on affiche le resultat
+	//imshow("result", frame);			// on affiche le resultat
 
 
 }

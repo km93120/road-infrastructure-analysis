@@ -9,7 +9,7 @@ using namespace cv;
 class CircularSignRect
 {
 public:
-	vector <Point2d> RWdimensions;
+	vector <Point3d> RWdimensions;
 	Rect  rect;
 
 	CircularSignRect(Rect);

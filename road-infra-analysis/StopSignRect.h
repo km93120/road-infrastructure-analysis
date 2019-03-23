@@ -8,7 +8,7 @@ using namespace cv;
 class StopSignRect
 {
 public:
-	vector <Point2d> RWdimensions;
+	vector <Point3d> RWdimensions;
 	Rect rect;
 
 	StopSignRect(Rect r);

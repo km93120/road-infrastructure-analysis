@@ -19,7 +19,7 @@ public:
 	void setBoundingRects(BoundingRects);
 	void computePose(Mat &img);
 
-	void projectPoints(Mat &img);
+
 
 	dPoints();
 	~dPoints();

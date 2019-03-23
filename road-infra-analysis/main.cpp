@@ -82,7 +82,6 @@ int main(int argc, const char** argv)
 		!RPSignCascade.load(RPSignCascadeName))
 	{
 		cerr << "ERROR: Could not load classifier cascade" << endl;
-		//help();
 		return -1;
 	}
 
@@ -93,9 +92,11 @@ int main(int argc, const char** argv)
 	classifiers.push_back(crossSignCascade);
 	classifiers.push_back(RPSignCascade);
 	
+	dPoints dpoints;
 
+	//capture.open("C:/Users/khafireen/source/repos/road-infra-analysis/road-infra-analysis/videotest.mp4");
 	capture.open(0);
-
+	
 
 	if (capture.isOpened())
 	{
@@ -103,10 +104,13 @@ int main(int argc, const char** argv)
 
 		for (;;)
 		{
+			Mat frame1;
 			capture >> frame;
+			//resize(frame, frame1, Size(1280,1060),0,0,INTER_LINEAR_EXACT);
+			//frame1 = frame(Rect(850, 500, 200, 200));
+			frame1 = frame.clone();
 			if (frame.empty()) { continue; }
 
-			Mat frame1 = frame.clone();
 			
 			op_codes = shapeDetect(frame1,boundingRects);
 			if (!op_codes.empty())
@@ -131,10 +135,10 @@ int main(int argc, const char** argv)
 			cout << " fDirection sign : " << boundingRects.circularSignRects.size() << " / " << boundingRects.circleBoundingRects.size() << endl;
 			cout << " RP sign : " << boundingRects.rpSignRects.size() << " / " << boundingRects.triangleBoundingRects.size() << endl;
 			
-			drawRects(boundingRects, frame);
+			drawRects(boundingRects, frame1);
 			//------------------------------------------- AR computing starts here -------------------------------------------------------------------------------
 
-			dPoints dpoints;
+			
 			dpoints.setBoundingRects(boundingRects);
 			dpoints.computePose(frame1);
 
