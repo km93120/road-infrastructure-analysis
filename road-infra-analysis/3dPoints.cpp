@@ -114,6 +114,9 @@ void dPoints::computePose(Mat &img)
 		{
 			cv::line(img, Point(img.cols / 2, img.rows), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(0, 0, 255), 2);
 			putText(img, str, Point(r.x + r.width + 10, r.y + r.height / 2), 1, 1, Scalar(0, 0, 255));
+			rectangle(img, Point(cvRound(r.x), cvRound(r.y)),
+				Point(cvRound((r.x + r.width - 1)), cvRound((r.y + r.height - 1))),
+				Scalar(0, 0, 255), 3, 8, 0);
 		}
 
 		else

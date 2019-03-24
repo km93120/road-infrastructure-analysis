@@ -38,7 +38,9 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	Canny(bw, bw, lowCannyThreshold,lowCannyThreshold*2); //0,50 originally
 	
 	structuringElement = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
-	//morphologyEx(bw, bw, MORPH_CLOSE, structuringElement);
+	//morphologyEx(bw  , bw, MORPH_CLOSE, structuringElement);
+	//imshow("closed", bw);
+
 
 	// Find contours
 	vector<std::vector<cv::Point> > contours;
@@ -125,7 +127,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	if (triangleDetected)
 	{
 		outVector.push_back(PEDESTRIAN_CROSSING_SIGN_DETECTION);
-		outVector.push_back(RIGHT_PRECEDENCE_SIGN_DETECTION);
+		//outVector.push_back(RIGHT_PRECEDENCE_SIGN_DETECTION);
 	}
 	if (rectangleDetected)
 	{
