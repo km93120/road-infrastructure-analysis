@@ -17,7 +17,7 @@ public:
 	CarAlertObject carAlertObject;
 	Mat rvec, tvec,cameraMatrix,dist_coeffs;
 	void setBoundingRects(BoundingRects);
-	void computePose(Mat &img);
+	void computePose(Mat &img,int safeDistance);
 
 
 

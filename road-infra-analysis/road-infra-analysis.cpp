@@ -27,6 +27,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 
 	
 	cvtColor(img, gray, COLOR_BGR2GRAY);
+	equalizeHist(gray, gray);
 	//threshold(gray, thresholded, 100, 255, 0);
 
 	// Use Canny instead of threshold to catch squares with gradient shading
@@ -38,7 +39,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 	Canny(bw, bw, lowCannyThreshold,lowCannyThreshold*2); //0,50 originally
 	
 	structuringElement = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
-	//morphologyEx(bw  , bw, MORPH_CLOSE, structuringElement);
+	morphologyEx(bw  , bw, MORPH_CLOSE, structuringElement);
 	//imshow("closed", bw);
 
 
@@ -64,7 +65,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 		{
 			int verticesNumber = approx.size();
 
-			cout << "triangle";
+			//cout << "triangle";
 			Rect bdr = boundingRect(approx);
 			rectangle(bw, bdr, Scalar(255, 0, 0));
 			boundingRects.triangleBoundingRects.push_back(boundingRect(approx));
@@ -81,7 +82,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 		}
 		if (approx.size() == 8)
 		{
-			cout << "octo";
+			//cout << "octo";
 			octogonDetected = true;
 			Rect bdr = boundingRect(approx);
 			boundingRects.octogonRects.push_back(bdr);
@@ -96,7 +97,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 			//if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
 				if(std::abs(1 - (area / (CV_PI * std::pow(radius, 2)))) <= 0.2)
 			{
-				cout << "circle" << endl;
+				//cout << "circle" << endl;
 				//cout << "APPROX SIZE"<< approx.size() << endl ;
 				boundingRects.circleBoundingRects.push_back(r);
 				circleDetected = true;
@@ -147,7 +148,7 @@ vector <int> shapeDetect(Mat &img,BoundingRects &boundingRects)
 
 	clock_t end = clock();
 	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-	std::cout << elapsed_secs << std::endl;
+//	std::cout << elapsed_secs << std::endl;
 	//imshow("s", bw);
 	return outVector;
 	

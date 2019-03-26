@@ -21,28 +21,63 @@ void dPoints::setBoundingRects(BoundingRects  boundingRects)
 	this->boundingRects = boundingRects;
 }
 
-void dPoints::computePose(Mat &img)
+void dPoints::computePose(Mat &img,int safeDistance)
 {
 	for (int i = 0; i < boundingRects.carRects.size(); i++)
 	{
 		vector<Point3d> RWpoints = boundingRects.carRects.at(i).RWdimensions;
 		Rect r = boundingRects.carRects.at(i).rect;
-		vector<Point2d> imagePoints;
-		imagePoints.push_back(Point2d(r.x, r.y));
-		imagePoints.push_back(Point2d(r.x + r.width, r.y));
-		imagePoints.push_back(Point2d(r.x + r.width, r.y+ r.height));
-		imagePoints.push_back(Point2d(r.x, r.y + r.height));
+		Rect rClone = r;
+
+		cv::Size deltaSize(r.width * 0.5f,
+			r.height *0.5f);
+
+		cv::Point offset(deltaSize.width / 2, deltaSize.height / 2);
+
+		r -= deltaSize;
+		r += offset;
+
+		vector<Point2d> imagePoints ;
+		imagePoints.push_back(Point2d(rClone.x, rClone.y));
+		imagePoints.push_back(Point2d(rClone.x + rClone.width, rClone.y));
+		imagePoints.push_back(Point2d(rClone.x + rClone.width, rClone.y+ rClone.height));
+		imagePoints.push_back(Point2d(rClone.x, rClone.y + rClone.height));
 
 		solvePnP(RWpoints, imagePoints, cameraMatrix, dist_coeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE);
 		
-		Mat H;
+		vector<Point2d> imagePointsHomography;
+		imagePointsHomography.push_back(Point2d(r.x, r.y));
+		imagePointsHomography.push_back(Point2d(r.x + r.width, r.y));
+		imagePointsHomography.push_back(Point2d(r.x + r.width, r.y + r.height));
+		imagePointsHomography.push_back(Point2d(r.x, r.y + r.height));
 
-		//findHomography(carAlertObject.dimensions, imagePoints, H);
+		Mat H; 
+		Mat im_temp = img.clone();
+		H = findHomography(carAlertObject.dimensions, imagePointsHomography); // 2d
+		/*vector <Point3d> inputPoints;  
+		vector <Point2d> carAlertObjectImagePoints;
+		inputPoints.push_back(Point3d(0, 0,0));
+		inputPoints.push_back(Point3d(899, 0, 0));
+		inputPoints.push_back(Point3d(899, 539, 0));
+		inputPoints.push_back(Point3d(0, 539, 0));
 
-		cout << "H rows : " << H.rows << endl 
-		     <<	"H cols : " << H.cols << endl;
-		 
-		//warpPerspective(carAlertObject.img, img, H,img.size());
+		//cv::projectPoints(inputPoints, rvec, tvec, cameraMatrix, dist_coeffs, carAlertObjectImagePoints);
+		//H = findHomography(carAlertObjectImagePoints, imagePoints); //3d
+		
+		*/
+
+		warpPerspective(carAlertObject.img, im_temp, H,img.size());
+		//fillConvexPoly(img, imagePoints, 4, Scalar(0), LINE_AA);
+
+		
+
+		/*Mat mask_image(img.size(), CV_32S, Scalar(0));
+		vector<vector<Point2d>> polyRecObject;
+		polyRecObject.push_back(imagePoints);
+		fillPoly(mask_image, polyRecObject, Scalar(255));
+		imshow("mask", mask_image);
+
+		carAlertObject.img.copyTo(img, mask_image);*/
 
 		// <recalage virtuel>-------------------------------------------------------------------------
 		/*Mat H;
@@ -71,19 +106,20 @@ void dPoints::computePose(Mat &img)
 		*/
 		//</recalage virtuel> -----------------------------------------------------------------------
 		
-		std::cout << tvec.at<double>(0,2)<< endl;
+		//std::cout << tvec.at<double>(0,2)<< endl;
 		double z = tvec.at<double>(0, 2);
 		std::ostringstream strs;
 		strs << z;
 		std::string str = strs.str();
 		
-		if (z < 25)
+		if (z < safeDistance)
 		{
 			cv::line(img, Point(img.cols / 2, img.rows), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(0, 0, 255),2);
 			putText(img, str, Point(r.x + r.width + 10, r.y + r.height / 2), 1, 1, Scalar(0, 0, 255));
-			rectangle(img, Point(cvRound(r.x), cvRound(r.y)),
-				Point(cvRound((r.x + r.width - 1)), cvRound((r.y + r.height - 1))),
+			rectangle(img, Point(cvRound(rClone.x), cvRound(rClone.y)),
+				Point(cvRound((rClone.x + rClone.width - 1)), cvRound((rClone.y + rClone.height - 1))),
 				Scalar(0, 0, 255), 3, 8, 0);
+			img = img + im_temp;
 		}
 
 		else
@@ -178,7 +214,7 @@ void dPoints::computePose(Mat &img)
 		warpPerspective(clone, img, M, img.size());*/
 
 		//</recalage virtuel> 
-		std::cout << tvec.at<double>(0, 2) << endl;
+		//std::cout << tvec.at<double>(0, 2) << endl;
 		double z = tvec.at<double>(0, 2);
 		std::ostringstream strs;
 		strs << z;

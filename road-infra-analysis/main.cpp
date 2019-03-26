@@ -10,9 +10,19 @@
 using namespace std;
 using namespace cv;
 
+int sliderPos;
+int speed;
+
+void onTrackbarValueChanged(int, void*)
+{
+	speed = sliderPos;
+}
+
+
 int main(int argc, const char** argv)
 {
-	
+	namedWindow("pose");
+	createTrackbar("Max Speed", "pose", &sliderPos, 130, onTrackbarValueChanged);
 
 	string carCascadeName, 
 		   pedestrianCascadeName, 
@@ -104,6 +114,7 @@ int main(int argc, const char** argv)
 
 		for (;;)
 		{
+			clock_t begin = clock();
 			Mat frame1;
 			capture >> frame;
 			//resize(frame, frame1, Size(1280,1060),0,0,INTER_LINEAR_EXACT);
@@ -131,16 +142,16 @@ int main(int argc, const char** argv)
 
 			//pedestrianDetectAndDraw(frame1, fDirSignCascade, scale);
 			//pedestrianDetectAndDraw(frame,crossSignCascade, scale);
-			cout << " pedestrian crossing signs : " << boundingRects.crossSignRects.size() << " / "  << boundingRects.triangleBoundingRects.size() << endl;
+			/*cout << " pedestrian crossing signs : " << boundingRects.crossSignRects.size() << " / "  << boundingRects.triangleBoundingRects.size() << endl;
 			cout << " fDirection sign : " << boundingRects.circularSignRects.size() << " / " << boundingRects.circleBoundingRects.size() << endl;
-			cout << " RP sign : " << boundingRects.rpSignRects.size() << " / " << boundingRects.triangleBoundingRects.size() << endl;
+			cout << " RP sign : " << boundingRects.rpSignRects.size() << " / " << boundingRects.triangleBoundingRects.size() << endl;*/
 			
 			drawRects(boundingRects, frame1);
 			//------------------------------------------- AR computing starts here -------------------------------------------------------------------------------
 
 			
 			dpoints.setBoundingRects(boundingRects);
-			dpoints.computePose(frame1);
+			dpoints.computePose(frame1,speed*0.6);
 
 			
 			//------------------------------------------- AR computing ends here -------------------------------------------------------------------------------
@@ -151,7 +162,9 @@ int main(int argc, const char** argv)
 			boundingRects.clearAllContainers();
 
 
-
+			clock_t end = clock();
+			double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+			std::cout << "time elapsed  loop :" <<elapsed_secs << std::endl;
 
 			char c = (char)waitKey(10);
 			if (c == 27 || c == 'q' || c == 'Q')
